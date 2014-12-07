@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Photo Map Navigation</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="action_take_photo">Take a Photo</string>
+    <string name="action_profile">My Profile</string>
+    <string name="mobiledata_title">Mobile Data</string>
+    <string name="mobiledata_message">You are currently connected to mobile data. Do you still want to upload?</string>
+    <string name="no_connection_title">No Connection</string>
+    <string name="no_connection_message">Currently you are not connected to any kind of network</string>
+    
+</resources>
