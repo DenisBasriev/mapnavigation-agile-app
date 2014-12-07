@@ -87,11 +87,6 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        presenter.savePhoto(resultCode);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
@@ -121,14 +116,37 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
-    public void addNewMarker(Bitmap bitmap, LatLng latLng) {
-        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+    public void enableUserLocation() {
+        mMap.setMyLocationEnabled(true);
+    }
+
+    @Override
+    public LatLng getCurrentLocation() {
+        Location loc = mMap.getMyLocation();
+
+        return new LatLng(loc.getLatitude(), loc.getLongitude());
+    }
+
+    @Override
+    public void setCameraToCurrentLocation() {
+        CameraPosition position = new CameraPosition.Builder().target(getCurrentLocation()).zoom(15.0f).build();
+
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+    }
+
+    @Override
+    public void enableActionTakePicture() {
+        invalidateOptionsMenu();
     }
 
     @Override
     public void startImageCaptureActivity(Intent intent, Integer request) {
         startActivityForResult(intent, request);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        presenter.savePhoto(resultCode);
     }
 
     @Override
@@ -142,22 +160,9 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
-    public LatLng getCurrentLocation() {
-        Location loc = mMap.getMyLocation();
-
-        return new LatLng(loc.getLatitude(), loc.getLongitude());
-    }
-
-    @Override
-    public void enableUserLocation() {
-        mMap.setMyLocationEnabled(true);
-    }
-
-    @Override
-    public void setCameraToCurrentLocation() {
-         CameraPosition position = new CameraPosition.Builder().target(getCurrentLocation()).zoom(15.0f).build();
-
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+    public void addNewMarker(Bitmap bitmap, LatLng latLng) {
+        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -222,10 +227,5 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     @Override
     public void dismissProgressDialog() {
         progressDialog.dismiss();
-    }
-
-    @Override
-    public void enableActionTakePicture() {
-        invalidateOptionsMenu();
     }
 }

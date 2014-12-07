@@ -40,35 +40,6 @@ public class MapsPresenterImpl implements MapsPresenter {
     public void setView(MapsView mapsView) { this.mapsView = mapsView; }
 
     @Override
-    public void notifyToShowProgressDialog(String uploadMessage) {
-        mapsView.showProgressDialog(uploadMessage);
-    }
-
-    @Override
-    public void notifyToDismissProgressDialog() {
-        mapsView.dismissProgressDialog();
-    }
-
-    @Override
-    public void takePhoto() {
-        mapsView.showProgress();
-
-        dispatchTakePictureIntent();
-    }
-
-    @Override
-    public void savePhoto(Integer resultCode) {
-        if (resultCode==mapsView.getResultOk()) {
-            handlePhoto();
-        } else {
-            File f = new File(mCurrentPhotoPath);
-            f.delete();
-
-            mCurrentPhotoPath = null;
-        }
-    }
-
-    @Override
     public void setUpMap(String username) {
         mapsView.showProgress();
         mapsView.enableUserLocation();
@@ -84,7 +55,12 @@ public class MapsPresenterImpl implements MapsPresenter {
 
     }
 
+    @Override
+    public void takePhoto() {
+        mapsView.showProgress();
 
+        dispatchTakePictureIntent();
+    }
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -106,44 +82,24 @@ public class MapsPresenterImpl implements MapsPresenter {
         mapsView.startImageCaptureActivity(takePictureIntent, REQUEST_TAKE_PHOTO);
     }
 
+    @Override
+    public void savePhoto(Integer resultCode) {
+        if (resultCode==mapsView.getResultOk()) {
+            handlePhoto();
+        } else {
+            File f = new File(mCurrentPhotoPath);
+            f.delete();
+
+            mCurrentPhotoPath = null;
+        }
+    }
+
     private void handlePhoto() {
         geoTag();
         galleryAddPic();
 
         new ScaledBitmapDecoder(this).execute(mCurrentPhotoPath);
         new FullBitmapDecoder(this).execute(mCurrentPhotoPath);
-    }
-
-    @Override
-    public void doneDecodingForRoot(Bitmap bitmap) {
-        bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
-
-        mapsView.addNewMarker(bitmap, mCurrentLatLng);
-        mapsView.hideProgress();
-    }
-
-    @Override
-    public void doneDecodingForUpload(Bitmap bitmap) {
-        mCurrentConvertedImage = bitmapOperator.bitmapToString(bitmap);
-
-        uploadPhoto();
-    }
-
-    @Override
-    public void alertDialogAnswered(boolean answer) {
-        if (answer) {
-            new UploadImageTask(this).execute(mCurrentConvertedImage);
-        }
-    }
-
-    private void uploadPhoto() {
-        if (mapsView.wifiAvailable()) {
-            new UploadImageTask(this).execute(mCurrentConvertedImage);
-        } else if (mapsView.mobileDataAvailable()) {
-            mapsView.alertMobileData();
-        } else {
-            mapsView.alertNoConnection();
-        }
     }
 
     private void geoTag() {
@@ -165,5 +121,47 @@ public class MapsPresenterImpl implements MapsPresenter {
         mediaScanIntent.setData(contentUri);
 
         mapsView.broadcastToGallery(mediaScanIntent);
+    }
+
+    @Override
+    public void doneDecodingForRoot(Bitmap bitmap) {
+        bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
+
+        mapsView.addNewMarker(bitmap, mCurrentLatLng);
+        mapsView.hideProgress();
+    }
+
+    @Override
+    public void doneDecodingForUpload(Bitmap bitmap) {
+        mCurrentConvertedImage = bitmapOperator.bitmapToString(bitmap);
+
+        uploadPhoto();
+    }
+
+    private void uploadPhoto() {
+        if (mapsView.wifiAvailable()) {
+            new UploadImageTask(this).execute(mCurrentConvertedImage);
+        } else if (mapsView.mobileDataAvailable()) {
+            mapsView.alertMobileData();
+        } else {
+            mapsView.alertNoConnection();
+        }
+    }
+
+    @Override
+    public void alertDialogAnswered(boolean answer) {
+        if (answer) {
+            new UploadImageTask(this).execute(mCurrentConvertedImage);
+        }
+    }
+
+    @Override
+    public void notifyToShowProgressDialog(String uploadMessage) {
+        mapsView.showProgressDialog(uploadMessage);
+    }
+
+    @Override
+    public void notifyToDismissProgressDialog() {
+        mapsView.dismissProgressDialog();
     }
 }
