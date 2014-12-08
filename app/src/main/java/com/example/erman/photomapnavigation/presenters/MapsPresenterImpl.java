@@ -40,7 +40,7 @@ public class MapsPresenterImpl implements MapsPresenter {
     public void setView(MapsView mapsView) { this.mapsView = mapsView; }
 
     @Override
-    public void setUpMap(String username) {
+    public void setUpMap(String username, final boolean isRegistered) {
         mapsView.showProgress();
         mapsView.enableUserLocation();
 
@@ -49,7 +49,10 @@ public class MapsPresenterImpl implements MapsPresenter {
             public void run() {
                 mapsView.setCameraToCurrentLocation();
                 mapsView.hideProgress();
-                mapsView.enableActionTakePicture();
+
+                if (isRegistered) {
+                    mapsView.enableActionTakePicture();
+                }
             }
         }, 10000);
 

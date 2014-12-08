@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,10 +6,10 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.erman.photomapnavigation.activities.SignIn"
-    android:orientation="vertical"
+    tools:context="com.example.erman.photomapnavigation.activities.SignInActivity"
     android:layout_gravity="center_horizontal"
-    android:gravity="center">
+    android:gravity="center"
+    android:layout_centerVertical="true">
 
     <EditText
         android:id="@+id/email"
@@ -22,9 +22,11 @@
         android:drawablePadding="8dp"
         android:hint="@string/email_hint"/>
 
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/email"
         android:id="@+id/password"
         android:inputType="textPassword"
         android:gravity="center_vertical"
@@ -33,12 +35,44 @@
         android:drawablePadding="8dp"
         android:hint="@string/password_hint"/>
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/sign_in_button"
-        android:drawableEnd="@drawable/ic_action_accept"
-        android:drawableRight="@drawable/ic_action_accept"
-        android:text="@string/sign_in"/>
+        android:layout_below="@+id/password"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout">
 
-</LinearLayout>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/sign_in_button"
+            android:drawableEnd="@drawable/ic_action_accept"
+            android:drawableRight="@drawable/ic_action_accept"
+            android:text="@string/sign_in"
+            android:drawablePadding="8dp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/sign_up_button"
+            android:drawableEnd="@drawable/ic_action_user_add"
+            android:drawableRight="@drawable/ic_action_user_add"
+            android:text="@string/sign_up"
+            android:drawablePadding="8dp"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/look_out"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/linearLayout"
+        android:layout_alignEnd="@+id/linearLayout"
+        android:text="@string/look_up"
+        android:drawableEnd="@drawable/ic_action_forward"
+        android:drawableRight="@drawable/ic_action_forward"
+        android:drawablePadding="8dp"/>
+</RelativeLayout>

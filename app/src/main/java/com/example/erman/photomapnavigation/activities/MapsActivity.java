@@ -11,10 +11,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.erman.photomapnavigation.R;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
@@ -35,7 +37,9 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     private ProgressBar progressBar;
     private boolean alertDialogAnswer = false;
     private ProgressDialog progressDialog;
-    private MenuItem takePhotoButton;
+    private MenuItem takePhotoButton, profileButton;
+    private String userEmail;
+    private boolean isRegistered;
     private int onPrepareCounter = 0;
 
     @Override
@@ -49,6 +53,12 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         presenter = new MapsPresenterImpl();
         presenter.setView(this);
 
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            userEmail = extras.getString("userEmail");
+            isRegistered = extras.getBoolean("isRegistered?");
+        }
         setUpMapIfNeeded();
     }
 
@@ -59,6 +69,10 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         }
 
         onPrepareCounter++;
+
+        final MenuItem item = menu.findItem(R.id.action_profile);
+
+        item.setTitle(userEmail);
 
         super.onPrepareOptionsMenu(menu);
         return true;
@@ -71,6 +85,11 @@ public class MapsActivity extends FragmentActivity implements MapsView{
 
         takePhotoButton = menu.findItem(R.id.action_take_picture);
         takePhotoButton.setVisible(false);
+
+        if(!isRegistered) {
+            profileButton = menu.findItem(R.id.action_profile);
+            profileButton.setVisible(false);
+        }
 
         return true;
     }
@@ -100,7 +119,7 @@ public class MapsActivity extends FragmentActivity implements MapsView{
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                presenter.setUpMap("ermanyafay@gmail.com");
+                    presenter.setUpMap(userEmail, isRegistered);
             }
         }
     }

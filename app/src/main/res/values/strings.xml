@@ -14,5 +14,10 @@
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="look_up">Have a look!</string>
+    <string name="email_empty_error">Email cannot be empty!</string>
+    <string name="password_empty_error">Password cannot be empty!</string>
+    <string name="default_username">Username</string>
 
 </resources>
