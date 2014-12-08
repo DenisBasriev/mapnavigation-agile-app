@@ -37,6 +37,11 @@ public class SignInPresenterImpl implements SignInPresenter {
     }
 
     @Override
+    public void signUp() {
+        view.navigateToSignUp();
+    }
+
+    @Override
     public void lookUp() {
         view.navigateVisitorToMap();
     }

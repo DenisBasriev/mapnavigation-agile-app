@@ -20,5 +20,11 @@
     <string name="password_empty_error">Password cannot be empty!</string>
     <string name="default_username">Username</string>
     <string name="url_copied_clipboard">Uploaded images URL copied to your clipboard!</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="remail_hint">Retype Email</string>
+    <string name="repassword_hint">Retype Password</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

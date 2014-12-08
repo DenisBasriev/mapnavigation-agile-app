@@ -10,4 +10,5 @@ public interface SignInPresenter {
     public void setView(SignInView view);
     public void signIn(String email, String password);
     public void lookUp();
+    public void signUp();
 }

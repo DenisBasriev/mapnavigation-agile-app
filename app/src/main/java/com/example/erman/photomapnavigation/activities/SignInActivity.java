@@ -19,6 +19,7 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
     private EditText email;
     private EditText password;
     private Button signIn;
+    private Button signUp;
     private Button lookOut;
     private SignInPresenter presenter;
 
@@ -32,7 +33,9 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
         password = (EditText) findViewById(R.id.password);
         signIn = (Button) findViewById(R.id.sign_in_button);
         lookOut = (Button) findViewById(R.id.look_out);
+        signUp = (Button) findViewById(R.id.sign_up_button);
         signIn.setOnClickListener(this);
+        signUp.setOnClickListener(this);
         lookOut.setOnClickListener(this);
         presenter = new SignInPresenterImpl();
         presenter.setView(this);
@@ -67,6 +70,8 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
             presenter.signIn(email.getText().toString(), password.getText().toString());
         } else if (currentViewId == R.id.look_out) {
             presenter.lookUp();
+        } else if (currentViewId == R.id.sign_up_button) {
+            presenter.signUp();
         }
     }
 
@@ -92,6 +97,12 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
     public void navigateVisitorToMap() {
         Intent intent = new Intent(SignInActivity.this, MapsActivity.class);
         intent.putExtra("isRegistered?", false);
+        startActivity(intent);
+    }
+
+    @Override
+    public void navigateToSignUp() {
+        Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
         startActivity(intent);
     }
 }

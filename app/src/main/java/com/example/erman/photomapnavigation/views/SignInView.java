@@ -9,4 +9,5 @@ public interface SignInView {
     public void showPasswordError();
     public void navigateUserToMap();
     public void navigateVisitorToMap();
+    public void navigateToSignUp();
 }
