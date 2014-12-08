@@ -17,4 +17,5 @@ public interface MapsPresenter {
     public void doneDecodingForRoot(Bitmap bitmap);
     public void doneDecodingForUpload(Bitmap bitmap);
     public void alertDialogAnswered(boolean answer);
+    public void notifyToCopyUrlToClipboard(String url);
 }

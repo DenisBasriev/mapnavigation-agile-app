@@ -19,5 +19,6 @@
     <string name="email_empty_error">Email cannot be empty!</string>
     <string name="password_empty_error">Password cannot be empty!</string>
     <string name="default_username">Username</string>
+    <string name="url_copied_clipboard">Uploaded images URL copied to your clipboard!</string>
 
 </resources>

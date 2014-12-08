@@ -43,7 +43,7 @@ public class BitmapOperator {
         return bmp;
     }
 
-    public String bitmapToString(Bitmap bmp) {
+    public String bitmapToBase64(Bitmap bmp) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 80, baos);
 

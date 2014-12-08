@@ -2,6 +2,7 @@ package com.example.erman.photomapnavigation.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.erman.photomapnavigation.R;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
@@ -235,6 +237,13 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         }).setIcon(android.R.drawable.ic_dialog_alert);
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    @Override
+    public void copyToClipboard(String url) {
+        ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboardManager.setText(url);
+        Toast.makeText(this, R.string.url_copied_clipboard, Toast.LENGTH_LONG).show();
     }
 
     @Override

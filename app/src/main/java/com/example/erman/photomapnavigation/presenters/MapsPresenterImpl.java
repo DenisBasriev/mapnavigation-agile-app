@@ -94,6 +94,7 @@ public class MapsPresenterImpl implements MapsPresenter {
             f.delete();
 
             mCurrentPhotoPath = null;
+            mapsView.hideProgress();
         }
     }
 
@@ -136,7 +137,9 @@ public class MapsPresenterImpl implements MapsPresenter {
 
     @Override
     public void doneDecodingForUpload(Bitmap bitmap) {
-        mCurrentConvertedImage = bitmapOperator.bitmapToString(bitmap);
+        bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
+
+        mCurrentConvertedImage = bitmapOperator.bitmapToBase64(bitmap);
 
         uploadPhoto();
     }
@@ -156,6 +159,11 @@ public class MapsPresenterImpl implements MapsPresenter {
         if (answer) {
             new UploadImageTask(this).execute(mCurrentConvertedImage);
         }
+    }
+
+    @Override
+    public void notifyToCopyUrlToClipboard(String url) {
+        mapsView.copyToClipboard(url);
     }
 
     @Override

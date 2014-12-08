@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -64,6 +65,20 @@ public class UploadImageTask extends AsyncTask<String, Void, JSONObject>{
     protected void onPostExecute(JSONObject jsonObject) {
         Log.d("JSON Response", jsonObject.toString());
 
+        try {
+            String url = getUrlFromJSON(jsonObject);
+
+            presenter.notifyToCopyUrlToClipboard(url);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         presenter.notifyToDismissProgressDialog();
+    }
+
+    private String getUrlFromJSON(JSONObject jsonObject) throws JSONException {
+        String url = jsonObject.getJSONObject("data").getString("link");
+
+        return url;
     }
 }

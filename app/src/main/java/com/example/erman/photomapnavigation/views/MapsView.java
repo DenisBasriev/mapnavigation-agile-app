@@ -26,4 +26,5 @@ public interface MapsView {
     public void showProgressDialog(String message);
     public void dismissProgressDialog();
     public void enableActionTakePicture();
+    public void copyToClipboard(String url);
 }
