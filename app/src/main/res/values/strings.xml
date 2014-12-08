@@ -9,5 +9,10 @@
     <string name="mobiledata_message">You are currently connected to mobile data. Do you still want to upload?</string>
     <string name="no_connection_title">No Connection</string>
     <string name="no_connection_message">Currently you are not connected to any kind of network</string>
-    
+    <string name="title_activity_sign_in">SignIn</string>
+    <string name="action_settings">Settings</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="sign_in">Sign In</string>
+
 </resources>
