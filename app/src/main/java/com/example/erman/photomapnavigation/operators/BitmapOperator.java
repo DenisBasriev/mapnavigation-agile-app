@@ -11,6 +11,7 @@ import java.io.IOException;
 /**
  * Created by erman on 07.12.2014.
  */
+
 public class BitmapOperator {
 
     public Bitmap fixRotation(Bitmap bmp, String filePath) {
