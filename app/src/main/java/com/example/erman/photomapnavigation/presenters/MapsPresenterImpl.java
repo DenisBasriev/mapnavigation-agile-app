@@ -29,6 +29,7 @@ public class MapsPresenterImpl implements MapsPresenter {
     private String mCurrentConvertedImage;
     private LatLng mCurrentLatLng;
     private BitmapOperator bitmapOperator;
+    public static final String SETUP_MAP_PROGRESS_DIALOG_MESSAGE = "Settin Up Map...";
 
     public MapsPresenterImpl() {
         mCurrentPhotoPath = null;
@@ -41,14 +42,14 @@ public class MapsPresenterImpl implements MapsPresenter {
 
     @Override
     public void setUpMap(String username, final boolean isRegistered) {
-        mapsView.showProgress();
+        mapsView.showNonCancellableProgressDialog(SETUP_MAP_PROGRESS_DIALOG_MESSAGE);
         mapsView.enableUserLocation();
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 mapsView.setCameraToCurrentLocation();
-                mapsView.hideProgress();
+                mapsView.dismissProgressDialog();
 
                 if (isRegistered) {
                     mapsView.enableActionTakePicture();
@@ -164,6 +165,11 @@ public class MapsPresenterImpl implements MapsPresenter {
     @Override
     public void notifyToCopyUrlToClipboard(String url) {
         mapsView.copyToClipboard(url);
+    }
+
+    @Override
+    public void signUp() {
+        mapsView.navigateToSignUp();
     }
 
     @Override

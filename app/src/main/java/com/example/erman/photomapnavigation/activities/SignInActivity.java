@@ -39,6 +39,12 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
         lookOut.setOnClickListener(this);
         presenter = new SignInPresenterImpl();
         presenter.setView(this);
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            email.setText(extras.getString("registeredEmail"));
+        }
     }
 
     @Override

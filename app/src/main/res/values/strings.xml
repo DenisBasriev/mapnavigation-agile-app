@@ -26,5 +26,8 @@
     <string name="repassword_hint">Retype Password</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
+    <string name="invalid_email_error">Invalid Email</string>
+    <string name="emails_not_match_error">Emails do not match</string>
+    <string name="password_not_match_error">Passwords do not match</string>
 
 </resources>

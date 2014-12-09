@@ -12,12 +12,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.erman.photomapnavigation.R;
@@ -39,7 +37,7 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     private ProgressBar progressBar;
     private boolean alertDialogAnswer = false;
     private ProgressDialog progressDialog;
-    private MenuItem takePhotoButton, profileButton;
+    private MenuItem takePhotoButton;
     private String userEmail;
     private boolean isRegistered;
     private int onPrepareCounter = 0;
@@ -66,15 +64,18 @@ public class MapsActivity extends FragmentActivity implements MapsView{
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if(onPrepareCounter!=0) {
-            takePhotoButton.setVisible(true);
+        if (isRegistered) {
+
+            if(onPrepareCounter!=0) {
+                takePhotoButton.setVisible(true);
+            }
+
+            onPrepareCounter++;
+
+            final MenuItem item = menu.findItem(R.id.action_profile);
+
+            item.setTitle(userEmail);
         }
-
-        onPrepareCounter++;
-
-        final MenuItem item = menu.findItem(R.id.action_profile);
-
-        item.setTitle(userEmail);
 
         super.onPrepareOptionsMenu(menu);
         return true;
@@ -83,14 +84,13 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.maps_actionbar, menu);
+        if (isRegistered) {
+            getMenuInflater().inflate(R.menu.maps_user_actionbar, menu);
 
-        takePhotoButton = menu.findItem(R.id.action_take_picture);
-        takePhotoButton.setVisible(false);
-
-        if(!isRegistered) {
-            profileButton = menu.findItem(R.id.action_profile);
-            profileButton.setVisible(false);
+            takePhotoButton = menu.findItem(R.id.action_take_picture);
+            takePhotoButton.setVisible(false);
+        } else {
+            getMenuInflater().inflate(R.menu.maps_visitor_actionbar, menu);
         }
 
         return true;
@@ -100,6 +100,11 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_take_picture){
             presenter.takePhoto();
+
+            return true;
+
+        } else if (item.getItemId() == R.id.action_sign_up) {
+            presenter.signUp();
 
             return true;
         } else {
@@ -247,6 +252,19 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
+    public void navigateToSignUp() {
+        Intent intent = new Intent(MapsActivity.this, SignUpActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showNonCancellableProgressDialog(String message) {
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    @Override
     public void showProgressDialog(String message) {
         progressDialog.setMessage(message);
         progressDialog.show();
@@ -255,5 +273,6 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     @Override
     public void dismissProgressDialog() {
         progressDialog.dismiss();
+        progressDialog.setCancelable(true);
     }
 }

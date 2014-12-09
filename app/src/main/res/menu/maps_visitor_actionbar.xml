@@ -1,0 +1,12 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.MapsActivity">
+
+    <item
+        android:id="@+id/action_sign_up"
+        android:icon="@drawable/ic_action_user_add"
+        android:title="@string/action_take_photo"
+        android:showAsAction="always"/>
+
+</menu>
