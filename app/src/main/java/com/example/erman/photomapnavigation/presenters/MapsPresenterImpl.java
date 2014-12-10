@@ -2,6 +2,7 @@ package com.example.erman.photomapnavigation.presenters;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -29,7 +30,7 @@ public class MapsPresenterImpl implements MapsPresenter {
     private String mCurrentConvertedImage;
     private LatLng mCurrentLatLng;
     private BitmapOperator bitmapOperator;
-    public static final String SETUP_MAP_PROGRESS_DIALOG_MESSAGE = "Settin Up Map...";
+    public static final String SETUP_MAP_PROGRESS_DIALOG_MESSAGE = "Setting Up Map...";
 
     public MapsPresenterImpl() {
         mCurrentPhotoPath = null;
@@ -50,10 +51,6 @@ public class MapsPresenterImpl implements MapsPresenter {
             public void run() {
                 mapsView.setCameraToCurrentLocation();
                 mapsView.dismissProgressDialog();
-
-                if (isRegistered) {
-                    mapsView.enableActionTakePicture();
-                }
             }
         }, 10000);
 
@@ -103,19 +100,27 @@ public class MapsPresenterImpl implements MapsPresenter {
         geoTag();
         galleryAddPic();
 
-        new ScaledBitmapDecoder(this).execute(mCurrentPhotoPath);
-        new FullBitmapDecoder(this).execute(mCurrentPhotoPath);
+        if (mCurrentLatLng != null) {
+            new ScaledBitmapDecoder(this).execute(mCurrentPhotoPath);
+            new FullBitmapDecoder(this).execute(mCurrentPhotoPath);
+        }
     }
 
     private void geoTag() {
-        mCurrentLatLng = mapsView.getCurrentLocation();
+        Location loc = mapsView.getCurrentLocation();
 
-        GeoTagger geoTagger = new GeoTagger();
+        if (loc != null) {
+            mCurrentLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
 
-        try {
-            geoTagger.geoTagPhoto(mCurrentLatLng, mCurrentPhotoPath);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            GeoTagger geoTagger = new GeoTagger();
+
+            try {
+                geoTagger.geoTagPhoto(mCurrentLatLng, mCurrentPhotoPath);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            mapsView.showLocationError();
         }
     }
 

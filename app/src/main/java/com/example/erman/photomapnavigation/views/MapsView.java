@@ -2,6 +2,7 @@ package com.example.erman.photomapnavigation.views;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Location;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -16,7 +17,7 @@ public interface MapsView {
     public void startImageCaptureActivity(Intent intent, Integer request);
     public int getResultOk();
     public void broadcastToGallery(Intent intent);
-    public LatLng getCurrentLocation();
+    public Location getCurrentLocation();
     public void enableUserLocation();
     public void setCameraToCurrentLocation();
     public boolean wifiAvailable();
@@ -25,8 +26,8 @@ public interface MapsView {
     public void alertNoConnection();
     public void showProgressDialog(String message);
     public void dismissProgressDialog();
-    public void enableActionTakePicture();
     public void copyToClipboard(String url);
     public void navigateToSignUp();
     public void showNonCancellableProgressDialog(String message);
+    public void showLocationError();
 }

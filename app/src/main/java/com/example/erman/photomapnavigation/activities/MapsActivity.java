@@ -37,10 +37,8 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     private ProgressBar progressBar;
     private boolean alertDialogAnswer = false;
     private ProgressDialog progressDialog;
-    private MenuItem takePhotoButton;
     private String userEmail;
     private boolean isRegistered;
-    private int onPrepareCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,18 +62,9 @@ public class MapsActivity extends FragmentActivity implements MapsView{
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (isRegistered) {
+        final MenuItem item = menu.findItem(R.id.action_profile);
 
-            if(onPrepareCounter!=0) {
-                takePhotoButton.setVisible(true);
-            }
-
-            onPrepareCounter++;
-
-            final MenuItem item = menu.findItem(R.id.action_profile);
-
-            item.setTitle(userEmail);
-        }
+        item.setTitle(userEmail);
 
         super.onPrepareOptionsMenu(menu);
         return true;
@@ -86,9 +75,6 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     {
         if (isRegistered) {
             getMenuInflater().inflate(R.menu.maps_user_actionbar, menu);
-
-            takePhotoButton = menu.findItem(R.id.action_take_picture);
-            takePhotoButton.setVisible(false);
         } else {
             getMenuInflater().inflate(R.menu.maps_visitor_actionbar, menu);
         }
@@ -102,7 +88,6 @@ public class MapsActivity extends FragmentActivity implements MapsView{
             presenter.takePhoto();
 
             return true;
-
         } else if (item.getItemId() == R.id.action_sign_up) {
             presenter.signUp();
 
@@ -115,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     @Override
     protected void onResume() {
         super.onResume();
+
         setUpMapIfNeeded();
     }
 
@@ -147,22 +133,44 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
-    public LatLng getCurrentLocation() {
-        Location loc = mMap.getMyLocation();
+    public Location getCurrentLocation() {
+        /*LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location;
 
-        return new LatLng(loc.getLatitude(), loc.getLongitude());
+        if (lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        } else {
+            location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }*/
+
+        return mMap.getMyLocation();
     }
 
     @Override
     public void setCameraToCurrentLocation() {
-        CameraPosition position = new CameraPosition.Builder().target(getCurrentLocation()).zoom(15.0f).build();
+        Location currentLocation = getCurrentLocation();
+        if (currentLocation != null){
+            LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            CameraPosition position = new CameraPosition.Builder().target(latLng).zoom(15.0f).build();
 
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+        } else {
+            showLocationError();
+        }
     }
 
     @Override
-    public void enableActionTakePicture() {
-        invalidateOptionsMenu();
+    public void showLocationError() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.cannot_find_location_error_title).setMessage(R.string.cannot_find_location_error_message)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).setIcon(android.R.drawable.ic_dialog_alert);
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override
