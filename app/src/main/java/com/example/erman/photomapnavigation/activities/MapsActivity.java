@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -61,20 +62,12 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        final MenuItem item = menu.findItem(R.id.action_profile);
-
-        item.setTitle(userEmail);
-
-        super.onPrepareOptionsMenu(menu);
-        return true;
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         if (isRegistered) {
             getMenuInflater().inflate(R.menu.maps_user_actionbar, menu);
+            final MenuItem item = menu.findItem(R.id.action_profile);
+            item.setTitle(userEmail);
         } else {
             getMenuInflater().inflate(R.menu.maps_visitor_actionbar, menu);
         }
@@ -134,16 +127,18 @@ public class MapsActivity extends FragmentActivity implements MapsView{
 
     @Override
     public Location getCurrentLocation() {
-        /*LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Location location;
 
         if (lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
             location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         } else {
             location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }*/
+        }
 
-        return mMap.getMyLocation();
+        return location;
+        //return mMap.getMyLocation();
     }
 
     @Override

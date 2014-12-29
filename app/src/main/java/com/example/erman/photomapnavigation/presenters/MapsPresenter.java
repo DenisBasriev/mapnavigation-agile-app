@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 
 import com.example.erman.photomapnavigation.views.MapsView;
 
+import org.json.JSONObject;
+
 /**
  * Created by erman on 04.12.2014.
  */
@@ -19,4 +21,6 @@ public interface MapsPresenter {
     public void alertDialogAnswered(boolean answer);
     public void notifyToCopyUrlToClipboard(String url);
     public void signUp();
+    public void eventsLoaded(JSONObject jsonObject);
+    public void notifyToShowConnectionError();
 }

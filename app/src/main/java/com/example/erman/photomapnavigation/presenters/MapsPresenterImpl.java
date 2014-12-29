@@ -4,20 +4,24 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.example.erman.photomapnavigation.operators.BitmapOperator;
 import com.example.erman.photomapnavigation.operators.ScaledBitmapDecoder;
 import com.example.erman.photomapnavigation.operators.FileOperator;
 import com.example.erman.photomapnavigation.operators.FullBitmapDecoder;
 import com.example.erman.photomapnavigation.operators.GeoTagger;
+import com.example.erman.photomapnavigation.services.GetUsersPage;
 import com.example.erman.photomapnavigation.services.UploadImageTask;
 import com.example.erman.photomapnavigation.views.MapsView;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Created by erman on 04.12.2014.
@@ -45,15 +49,9 @@ public class MapsPresenterImpl implements MapsPresenter {
     public void setUpMap(String username, final boolean isRegistered) {
         mapsView.showNonCancellableProgressDialog(SETUP_MAP_PROGRESS_DIALOG_MESSAGE);
         mapsView.enableUserLocation();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mapsView.setCameraToCurrentLocation();
-                mapsView.dismissProgressDialog();
-            }
-        }, 10000);
-
+        mapsView.setCameraToCurrentLocation();
+        mapsView.dismissProgressDialog();
+        new GetUsersPage(this).execute(2);
     }
 
     @Override
@@ -137,6 +135,8 @@ public class MapsPresenterImpl implements MapsPresenter {
     public void doneDecodingForRoot(Bitmap bitmap) {
         bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
 
+        Log.d("Current LatLng", mCurrentLatLng.toString());
+        Log.d("Current date", new Date().toString());
         mapsView.addNewMarker(bitmap, mCurrentLatLng);
         mapsView.hideProgress();
     }
@@ -175,6 +175,20 @@ public class MapsPresenterImpl implements MapsPresenter {
     @Override
     public void signUp() {
         mapsView.navigateToSignUp();
+    }
+
+    @Override
+    public void eventsLoaded(JSONObject jsonObject) {
+        if (jsonObject != null) {
+            Log.d("Loaded Events", jsonObject.toString());
+        } else {
+            Log.d("Loaded Events", "NULL");
+        }
+    }
+
+    @Override
+    public void notifyToShowConnectionError() {
+        mapsView.alertNoConnection();
     }
 
     @Override

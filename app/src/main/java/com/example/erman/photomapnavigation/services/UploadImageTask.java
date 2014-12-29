@@ -4,9 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.erman.photomapnavigation.Constants;
-import com.example.erman.photomapnavigation.R;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
-import com.example.erman.photomapnavigation.views.MapsView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -55,22 +53,25 @@ public class UploadImageTask extends AsyncTask<String, Void, JSONObject>{
 
             return json;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            return null;
         }
-
-        return null;
     }
 
     @Override
     protected void onPostExecute(JSONObject jsonObject) {
-        Log.d("JSON Response", jsonObject.toString());
 
-        try {
-            String url = getUrlFromJSON(jsonObject);
+        if (jsonObject != null) {
+            Log.d("JSON Response", jsonObject.toString());
 
-            presenter.notifyToCopyUrlToClipboard(url);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            try {
+                String url = getUrlFromJSON(jsonObject);
+
+                presenter.notifyToCopyUrlToClipboard(url);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            presenter.notifyToShowConnectionError();
         }
 
         presenter.notifyToDismissProgressDialog();
