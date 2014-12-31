@@ -2,18 +2,24 @@ package com.example.erman.photomapnavigation.presenters;
 
 import android.text.TextUtils;
 
+import com.example.erman.photomapnavigation.Constants;
+import com.example.erman.photomapnavigation.R;
+import com.example.erman.photomapnavigation.models.RegisteredUser;
+import com.example.erman.photomapnavigation.services.GetRequest;
 import com.example.erman.photomapnavigation.views.SignInView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by erman on 08.12.2014.
  */
 public class SignInPresenterImpl implements SignInPresenter {
 
-    private SignInView view;
+    private SignInView signInView;
 
-    @Override
-    public void setView(SignInView view) {
-        this.view = view;
+    public void setSignInView(SignInView signInView) {
+        this.signInView = signInView;
     }
 
     @Override
@@ -22,27 +28,56 @@ public class SignInPresenterImpl implements SignInPresenter {
         if (TextUtils.isEmpty(email)) {
             error = true;
 
-            view.showEmailError();
+            signInView.showEmailError();
         }
 
         if (TextUtils.isEmpty(password)) {
             error = true;
 
-            view.showPasswordError();
+            signInView.showPasswordError();
         }
 
         if (!error) {
-            view.navigateUserToMap();
+            GetRequest request = new GetRequest(this);
+            request.setLoadMessage(signInView.getStringFromR(R.string.sign_in_message));
+            request.execute(Constants.USER_PAGE+ "3.json");
+
         }
     }
 
     @Override
     public void signUp() {
-        view.navigateToSignUp();
+        signInView.navigateToSignUp();
     }
 
     @Override
     public void lookUp() {
-        view.navigateVisitorToMap();
+        signInView.navigateVisitorToMap();
+    }
+
+    @Override
+    public void notifyToShowProgressDialog(String message) {
+        signInView.showProgressDialog(message);
+    }
+
+    @Override
+    public void notifyToDismissProgressDialog() {
+        signInView.dismissProgressDialog();
+    }
+
+    @Override
+    public void asyncTaskDone(JSONObject jsonObject) throws JSONException{
+        int id = jsonObject.getInt("id");
+
+        String firstName = jsonObject.getString("firstName");
+        String lastName = jsonObject.getString("email");
+        String email = firstName + lastName + "@gmail.com";
+
+        signInView.navigateUserToMap(id, firstName, lastName, email);
+    }
+
+    @Override
+    public void notifyToShowConnectionError() {
+        signInView.alertNoConnection();
     }
 }

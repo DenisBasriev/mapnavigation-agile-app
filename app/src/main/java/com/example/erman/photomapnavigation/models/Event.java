@@ -6,7 +6,7 @@ import java.util.Calendar;
 /**
  * Created by Erman Yafay on 09.11.2014.
  */
-public abstract class Event {
+public class Event {
 
     private int eventId;
     private Calendar createdDate, endDate;

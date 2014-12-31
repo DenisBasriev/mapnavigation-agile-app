@@ -31,5 +31,8 @@
     <string name="password_not_match_error">Passwords do not match</string>
     <string name="cannot_find_location_error_message">Currently we cannot find your location. Try to open any kind of internet connection or try again later!</string>
     <string name="cannot_find_location_error_title">Unable to find location!</string>
+    <string name="event_load_message">Loading your events&#8230;</string>
+    <string name="sign_in_message">Signing in&#8230;</string>
+    <string name="search_location_message">Searching your location&#8230;</string>
 
 </resources>

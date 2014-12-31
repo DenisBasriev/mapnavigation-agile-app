@@ -1,5 +1,8 @@
 package com.example.erman.photomapnavigation.activities;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -21,6 +24,7 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
     private Button signIn;
     private Button signUp;
     private Button lookOut;
+    private ProgressDialog progressDialog;
     private SignInPresenter presenter;
 
     @Override
@@ -37,8 +41,9 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
         signIn.setOnClickListener(this);
         signUp.setOnClickListener(this);
         lookOut.setOnClickListener(this);
+        progressDialog = new ProgressDialog(this);
         presenter = new SignInPresenterImpl();
-        presenter.setView(this);
+        presenter.setSignInView(this);
 
         Bundle extras = getIntent().getExtras();
 
@@ -92,10 +97,13 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
     }
 
     @Override
-    public void navigateUserToMap() {
+    public void navigateUserToMap(int userId, String firstName, String lastName, String email) {
         Intent intent = new Intent(SignInActivity.this, MapsActivity.class);
         intent.putExtra("isRegistered?", true);
-        intent.putExtra("userEmail", email.getText().toString());
+        intent.putExtra("userId", userId);
+        intent.putExtra("firstName", firstName);
+        intent.putExtra("lastName", lastName);
+        intent.putExtra("email", email);
         startActivity(intent);
     }
 
@@ -110,5 +118,34 @@ public class SignInActivity extends ActionBarActivity implements SignInView, Vie
     public void navigateToSignUp() {
         Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void showProgressDialog(String message) {
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        progressDialog.dismiss();
+    }
+
+    @Override
+    public void alertNoConnection() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.no_connection_title).setMessage(R.string.no_connection_message).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        }).setIcon(android.R.drawable.ic_dialog_alert);
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    @Override
+    public String getStringFromR(int event_load_message) {
+        return getString(event_load_message);
     }
 }

@@ -3,7 +3,7 @@ package com.example.erman.photomapnavigation.services;
 import android.os.AsyncTask;
 
 import com.example.erman.photomapnavigation.Constants;
-import com.example.erman.photomapnavigation.presenters.MapsPresenter;
+import com.example.erman.photomapnavigation.presenters.Presenter;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -18,24 +18,28 @@ import java.io.IOException;
 /**
  * Created by erman on 29.12.2014.
  */
-public class GetUsersPage extends AsyncTask<Integer, Void, JSONObject> {
+public class GetRequest extends AsyncTask<String, Void, JSONObject> {
 
-    private MapsPresenter presenter;
-    private static final String loadingMessage = "Loading Events...\n";
+    private Presenter presenter;
+    private static String loadMessage = "Loading...";
 
-    public GetUsersPage(MapsPresenter presenter) {
+    public GetRequest(Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    public void setLoadMessage(String message) {
+        loadMessage = message;
     }
 
     @Override
     protected void onPreExecute() {
-        presenter.notifyToShowProgressDialog(loadingMessage);
+        presenter.notifyToShowProgressDialog(loadMessage);
     }
 
     @Override
-    protected JSONObject doInBackground(Integer... integers) {
+    protected JSONObject doInBackground(String... strings) {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(Constants.USER_PAGE + integers[0].toString() + ".json");
+        HttpGet httpGet = new HttpGet(strings[0]);
 
         try {
             HttpResponse response = httpClient.execute(httpGet);
@@ -52,8 +56,13 @@ public class GetUsersPage extends AsyncTask<Integer, Void, JSONObject> {
 
     @Override
     protected void onPostExecute(JSONObject jsonObject) {
+
         if (jsonObject != null) {
-            presenter.eventsLoaded(jsonObject);
+            try {
+                presenter.asyncTaskDone(jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         } else {
             presenter.notifyToShowConnectionError();
         }

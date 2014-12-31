@@ -21,7 +21,8 @@ import android.widget.Toast;
 
 import com.example.erman.photomapnavigation.R;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
-import com.example.erman.photomapnavigation.presenters.MapsPresenterImpl;
+import com.example.erman.photomapnavigation.presenters.MapsPresenterUserImpl;
+import com.example.erman.photomapnavigation.presenters.MapsPresenterVisitorImpl;
 import com.example.erman.photomapnavigation.views.MapsView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,16 +49,26 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         setContentView(R.layout.activity_maps);
 
         progressBar = (ProgressBar) findViewById(R.id.progress);
-        progressDialog = new ProgressDialog(this);
-        presenter = new MapsPresenterImpl();
-        presenter.setView(this);
+        progressDialog = new ProgressDialog(this, AlertDialog.THEME_HOLO_DARK);
 
         Bundle extras = getIntent().getExtras();
 
         if (extras != null) {
-            userEmail = extras.getString("userEmail");
             isRegistered = extras.getBoolean("isRegistered?");
+
+            if (isRegistered) {
+                presenter = new MapsPresenterUserImpl();
+                userEmail = extras.getString("email");
+            } else {
+                presenter = new MapsPresenterVisitorImpl();
+            }
+
+            presenter.signedIn(extras);
         }
+
+        presenter.setView(this);
+
+
         setUpMapIfNeeded();
     }
 
@@ -105,7 +116,7 @@ public class MapsActivity extends FragmentActivity implements MapsView{
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                    presenter.setUpMap(userEmail, isRegistered);
+                    presenter.setUpMap();
             }
         }
     }
@@ -166,6 +177,11 @@ public class MapsActivity extends FragmentActivity implements MapsView{
                 }).setIcon(android.R.drawable.ic_dialog_alert);
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    @Override
+    public String getStringFromR(int event_load_message) {
+        return getString(event_load_message);
     }
 
     @Override
@@ -277,5 +293,13 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     public void dismissProgressDialog() {
         progressDialog.dismiss();
         progressDialog.setCancelable(true);
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public void setRegistered(boolean isRegistered) {
+        this.isRegistered = isRegistered;
     }
 }

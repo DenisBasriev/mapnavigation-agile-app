@@ -23,11 +23,14 @@ public interface MapsView {
     public boolean wifiAvailable();
     public boolean mobileDataAvailable();
     public void alertMobileData();
-    public void alertNoConnection();
-    public void showProgressDialog(String message);
+    public void alertNoConnection(); //common
+    public void showProgressDialog(String message); //common
     public void dismissProgressDialog();
     public void copyToClipboard(String url);
     public void navigateToSignUp();
     public void showNonCancellableProgressDialog(String message);
     public void showLocationError();
+    public String getStringFromR(int event_load_message);
+    public void setUserEmail(String email);
+    public void setRegistered(boolean isRegistered);
 }

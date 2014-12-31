@@ -2,15 +2,9 @@ package com.example.erman.photomapnavigation.operators;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.os.AsyncTask;
-import android.util.Base64;
 
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * Created by erman on 07.12.2014.

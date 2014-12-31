@@ -10,18 +10,14 @@ public class UnregisteredUser
 {
     private ArrayList<Event> accessableEvents;
 
-    public UnregisteredUser(ArrayList<Event> accEvent)
-    {
-        accessableEvents = new ArrayList<Event>(accEvent);
-    }
-
     public ArrayList<Event> getAccessableEvents()
     {
         return accessableEvents;
     }
 
-    public void accessEvent(Event e)
-    {
-        accessableEvents.add(e);
+    public void setAccessableEvents(ArrayList<Event> accEvents) {
+        accessableEvents = accEvents;
     }
+
+
 }

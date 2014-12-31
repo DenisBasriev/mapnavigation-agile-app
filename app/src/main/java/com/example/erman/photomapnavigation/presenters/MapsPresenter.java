@@ -1,26 +1,34 @@
 package com.example.erman.photomapnavigation.presenters;
 
 import android.graphics.Bitmap;
+import android.os.Bundle;
 
 import com.example.erman.photomapnavigation.views.MapsView;
 
-import org.json.JSONObject;
-
 /**
- * Created by erman on 04.12.2014.
+ * Created by erman on 31.12.2014.
  */
-public interface MapsPresenter {
-    public void takePhoto();
-    public void savePhoto(Integer resultCode);
-    public void setUpMap(String username, boolean isRegistered);
+public interface MapsPresenter extends Presenter{
+
+
+
     public void setView(MapsView mapsView);
-    public void notifyToShowProgressDialog(String uploadMessage);
-    public void notifyToDismissProgressDialog();
+
+    public void setUpMap();
+
+    public void takePhoto();
+
+    public void savePhoto(Integer resultCode);
+
     public void doneDecodingForRoot(Bitmap bitmap);
+
     public void doneDecodingForUpload(Bitmap bitmap);
+
     public void alertDialogAnswered(boolean answer);
+
     public void notifyToCopyUrlToClipboard(String url);
+
     public void signUp();
-    public void eventsLoaded(JSONObject jsonObject);
-    public void notifyToShowConnectionError();
+
+    public void signedIn(Bundle extras);
 }
