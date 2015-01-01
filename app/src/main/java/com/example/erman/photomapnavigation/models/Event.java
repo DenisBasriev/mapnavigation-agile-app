@@ -16,7 +16,7 @@ public class Event {
     private RegisteredUser creator;
     public boolean eventGoing;
 
-    public Event(int eventId, Photo rootPhoto, RegisteredUser creator) {
+    public Event(int eventId, RegisteredUser creator) {
         this.eventId = eventId;
 
         createdDate = Calendar.getInstance();
@@ -25,10 +25,7 @@ public class Event {
         title = "";
         description = "";
 
-        this.rootPhoto = rootPhoto;
-
         photos = new ArrayList<Photo>();
-        photos.add(rootPhoto);
 
         this.creator = creator;
 

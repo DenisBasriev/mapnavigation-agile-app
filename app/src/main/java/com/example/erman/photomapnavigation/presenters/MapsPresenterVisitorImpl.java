@@ -29,6 +29,11 @@ public class MapsPresenterVisitorImpl implements MapsPresenter{
     }
 
     @Override
+    public void downloadDone(Bitmap bitmap, String eventId) {
+
+    }
+
+    @Override
     public void setUpMap() {
         mapsView.showNonCancellableProgressDialog(mapsView.getStringFromR(R.string.search_location_message));
         mapsView.enableUserLocation();
@@ -82,7 +87,7 @@ public class MapsPresenterVisitorImpl implements MapsPresenter{
     }
 
     @Override
-    public void asyncTaskDone(JSONObject jsonObject) throws JSONException {
+    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException {
 
     }
 

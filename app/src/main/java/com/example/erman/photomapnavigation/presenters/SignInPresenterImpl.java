@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.example.erman.photomapnavigation.Constants;
 import com.example.erman.photomapnavigation.R;
+import com.example.erman.photomapnavigation.RequestTask;
 import com.example.erman.photomapnavigation.models.RegisteredUser;
 import com.example.erman.photomapnavigation.services.GetRequest;
 import com.example.erman.photomapnavigation.views.SignInView;
@@ -40,8 +41,10 @@ public class SignInPresenterImpl implements SignInPresenter {
         if (!error) {
             GetRequest request = new GetRequest(this);
             request.setLoadMessage(signInView.getStringFromR(R.string.sign_in_message));
-            request.execute(Constants.USER_PAGE+ "3.json");
-
+            String [] requestArgs = new String[2];
+            requestArgs[0] = Constants.USER_PAGE + "2.json";
+            requestArgs[1] = String.valueOf(RequestTask.SIGN_IN_TASK);
+            request.execute(requestArgs);
         }
     }
 
@@ -66,7 +69,7 @@ public class SignInPresenterImpl implements SignInPresenter {
     }
 
     @Override
-    public void asyncTaskDone(JSONObject jsonObject) throws JSONException{
+    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException{
         int id = jsonObject.getInt("id");
 
         String firstName = jsonObject.getString("firstName");

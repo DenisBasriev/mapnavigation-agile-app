@@ -149,7 +149,6 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         }
 
         return location;
-        //return mMap.getMyLocation();
     }
 
     @Override

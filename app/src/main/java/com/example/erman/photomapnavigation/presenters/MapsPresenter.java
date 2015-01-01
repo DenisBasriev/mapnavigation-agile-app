@@ -31,4 +31,6 @@ public interface MapsPresenter extends Presenter{
     public void signUp();
 
     public void signedIn(Bundle extras);
+
+    public void downloadDone(Bitmap bitmap, String eventId);
 }

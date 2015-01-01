@@ -10,21 +10,28 @@ import android.util.Log;
 
 import com.example.erman.photomapnavigation.Constants;
 import com.example.erman.photomapnavigation.R;
+import com.example.erman.photomapnavigation.RequestTask;
+import com.example.erman.photomapnavigation.models.Event;
+import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.models.RegisteredUser;
 import com.example.erman.photomapnavigation.operators.BitmapOperator;
 import com.example.erman.photomapnavigation.operators.FileOperator;
 import com.example.erman.photomapnavigation.operators.FullBitmapDecoder;
 import com.example.erman.photomapnavigation.operators.GeoTagger;
 import com.example.erman.photomapnavigation.operators.ScaledBitmapDecoder;
+import com.example.erman.photomapnavigation.services.DownloadImageTask;
 import com.example.erman.photomapnavigation.services.GetRequest;
 import com.example.erman.photomapnavigation.services.UploadImageTask;
 import com.example.erman.photomapnavigation.views.MapsView;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -56,16 +63,44 @@ public class MapsPresenterUserImpl implements MapsPresenter {
 
     @Override
     public void setUpMap() {
+        searchForLocation();
+        //loadAccessableEvents();
+        loadOwnEvents();
+    }
+
+    private void downloadOwnEventsRootPhotos() {
+        ArrayList<Event> events = user.getOwnEvents();
+        for (int i = 0; i < events.size(); i++) {
+            String [] downloadArgs = new String[2];
+            downloadArgs[0] = events.get(i).getRootPhoto().getUrl();
+            downloadArgs[1] = String.valueOf(events.get(i).getEventId());
+            new DownloadImageTask(this).execute(downloadArgs);
+        }
+    }
+
+    private void searchForLocation() {
         mapsView.showNonCancellableProgressDialog(mapsView.getStringFromR(R.string.search_location_message));
         mapsView.enableUserLocation();
         mapsView.setCameraToCurrentLocation();
         mapsView.dismissProgressDialog();
-
-        GetRequest request = new GetRequest(this);
-        request.setLoadMessage(mapsView.getStringFromR(R.string.event_load_message));
-        request.execute(Constants.EVENT_USER_PAGE + user.getUserId() + Constants.JSON_PAGE_POSTFIX);
     }
 
+    private void loadAccessableEvents() {
+        /*GetRequest request = new GetRequest(this);
+        request.setLoadMessage(mapsView.getStringFromR(R.string.event_load_message));
+        request.execute(Constants.EVENTS_PAGE + Constants.JSON_PAGE_POSTFIX);*/
+
+        //This part is currently hard-coded. We will changed it to how it is supposed to be after the event.json page opened for get request.
+    }
+
+    private void loadOwnEvents() {
+        GetRequest request =  new GetRequest(this);
+        request.setLoadMessage(mapsView.getStringFromR(R.string.event_load_message));
+        String [] requestArgs = new String[2];
+        requestArgs[0] = Constants.EVENT_USER_PAGE + user.getUserId() + Constants.JSON_PAGE_POSTFIX;
+        requestArgs[1] = String.valueOf(RequestTask.GET_OWN_EVENTS_TASK);
+        request.execute(requestArgs);
+    }
 
     public void takePhoto() {
         mapsView.showProgress();
@@ -203,7 +238,31 @@ public class MapsPresenterUserImpl implements MapsPresenter {
     }
 
     @Override
-    public void asyncTaskDone(JSONObject jsonObject) {
-        Log.d("JSON Object", jsonObject.toString());
+    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException {
+        if(givenTask.equals(Constants.EVENTS_PAGE)) {
+
+        } else if(givenTask.equals(String.valueOf(RequestTask.GET_OWN_EVENTS_TASK))) {
+            JSONArray jsonArray = jsonObject.getJSONArray("events");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject arrayElement = jsonArray.getJSONObject(i);
+                Event event = new Event(arrayElement.getInt("id"), user);
+                LatLng latLng = new LatLng(Double.valueOf(arrayElement.getString("latitude")), Double.valueOf(arrayElement.getString("longitude")));
+                Photo rootPhoto = new Photo(arrayElement.getString("thumbnail"), latLng, event.getEventId());
+                event.setRootPhoto(rootPhoto);
+                user.addOwnEvent(event);
+            }
+            downloadOwnEventsRootPhotos();
+        }
+    }
+
+    @Override
+    public void downloadDone(Bitmap bitmap, String eventId) {
+        ArrayList<Event> events = user.getOwnEvents();
+        for (Event e: events) {
+            if (e.getEventId() == Integer.valueOf(eventId)) {
+                e.getRootPhoto().setSource(bitmap);
+                mapsView.addNewMarker(bitmap, e.getRootPhoto().getLatLng());
+            }
+        }
     }
 }

@@ -1,7 +1,8 @@
 package com.example.erman.photomapnavigation.models;
 
 import android.graphics.Bitmap;
-import android.location.Location;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Date;
 
@@ -14,13 +15,11 @@ public class Photo {
     private String url, title, description;
     private Date createdDate;
     private Bitmap source;
-    private Location latLng;
+    private LatLng latLng;
     private int ownerEventId;
 
-    public Photo(String url, Date createdDate, Bitmap source, Location latLng, int ownerEventId) {
+    public Photo(String url, LatLng latLng, int ownerEventId) {
         this.url = url;
-        this.createdDate = createdDate;
-        this.source = source;
         this.latLng = latLng;
         this.ownerEventId = ownerEventId;
 
@@ -45,7 +44,7 @@ public class Photo {
     public Bitmap getSource() {
         return source;
     }
-    public Location getLatLng() {
+    public LatLng getLatLng() {
         return latLng;
     }
     public int getOwnerEventId() {
@@ -59,5 +58,13 @@ public class Photo {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public void setSource(Bitmap source) {
+        this.source = source;
     }
 }

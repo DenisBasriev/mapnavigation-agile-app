@@ -11,4 +11,5 @@ public class Constants {
     public static final String EVENT_USER_PAGE = "https://mapnav.herokuapp.com/events/user/";
     public static final String USER_PAGE = "https://mapnav.herokuapp.com/users/";
     public static final String JSON_PAGE_POSTFIX = ".json";
+    public static final String EVENTS_PAGE = "https://mapnav.herokuapp.com/events";
 }

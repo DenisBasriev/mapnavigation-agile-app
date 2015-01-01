@@ -9,6 +9,6 @@ import org.json.JSONObject;
 public interface Presenter {
     public void notifyToShowProgressDialog(String message);
     public void notifyToDismissProgressDialog();
-    public void asyncTaskDone(JSONObject jsonObject) throws JSONException;
+    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException;
     public void notifyToShowConnectionError();
 }

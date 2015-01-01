@@ -73,6 +73,10 @@ public class RegisteredUser extends UnregisteredUser {
             onGoingEvents.add(e);
         }
     }
+
+    public void addOwnEvent(Event event) {
+        ownEvents.add(event);
+    }
 }
 
 
