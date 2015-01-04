@@ -234,7 +234,6 @@ public class MapsPresenterUserImpl implements MapsPresenter {
         } else if(task == RequestTask.GET_OWN_EVENTS_TASK) {
             user.setOwnEvents(createEventsFromJSON(jsonObject));
 
-            downloadOwnEventsRootPhotos();
         }
     }
 
@@ -284,10 +283,6 @@ public class MapsPresenterUserImpl implements MapsPresenter {
         new DownloadImageTask(this, task).execute(photosToDownload);
     }
 
-    private void downloadOwnEventsRootPhotos() {
-        downloadEvents(user.getOwnEvents(), RequestTask.DOWNLOAD_OWN_EVENTS_PHOTOS);
-    }
-
     @Override
     public void downloadDone(Photo[] photos, RequestTask task){
         if (task == RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_PHOTOS) {
@@ -296,23 +291,14 @@ public class MapsPresenterUserImpl implements MapsPresenter {
                     if (p.getOwnerEventId() == e.getEventId()) {
                         e.setRootPhoto(p);
 
-                        mapsView.addNewMarker(p.getSource(), p.getLatLng());
-
-                        break;
-                    }
-                }
-            }
-
-        } else if (task == RequestTask.DOWNLOAD_OWN_EVENTS_PHOTOS) {
-            for (Photo p : photos) {
-                for (Event e : user.getAccessableEvents()) {
-                    if (p.getOwnerEventId() == e.getEventId()) {
-                        e.setRootPhoto(p);
+                        e.setMarkerId(mapsView.addNewMarker(p.getSource(), p.getLatLng()));
 
                         break;
                     }
                 }
             }
         }
+
+        user.copyCorrespondingAccEventsAsOwnEvents();
     }
 }

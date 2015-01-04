@@ -88,6 +88,14 @@ public class RegisteredUser extends UnregisteredUser {
 
         return null;
     }
+
+    public void copyCorrespondingAccEventsAsOwnEvents() {
+        for (Event e : ownEvents) {
+            Event accEvent = findAccessableEventById(e.getEventId());
+            e.getRootPhoto().setSource(accEvent.getRootPhoto().getSource());
+            e.setMarkerId(accEvent.getMarkerId());
+        }
+    }
 }
 
 

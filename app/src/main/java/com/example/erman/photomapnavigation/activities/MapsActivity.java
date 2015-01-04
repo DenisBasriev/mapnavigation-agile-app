@@ -30,9 +30,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements MapsView{
+public class MapsActivity extends FragmentActivity implements MapsView, GoogleMap.OnMarkerClickListener{
 
     private MapsPresenter presenter;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -49,7 +50,7 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         setContentView(R.layout.activity_maps);
 
         progressBar = (ProgressBar) findViewById(R.id.progress);
-        progressDialog = new ProgressDialog(this, AlertDialog.THEME_HOLO_DARK);
+        progressDialog = new ProgressDialog(this);
 
         Bundle extras = getIntent().getExtras();
 
@@ -116,6 +117,7 @@ public class MapsActivity extends FragmentActivity implements MapsView{
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+                    mMap.setOnMarkerClickListener(this);
                     presenter.setUpMap();
             }
         }
@@ -204,8 +206,12 @@ public class MapsActivity extends FragmentActivity implements MapsView{
     }
 
     @Override
-    public void addNewMarker(Bitmap bitmap, LatLng latLng) {
-        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+    public String addNewMarker(Bitmap bitmap, LatLng latLng) {
+        return mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromBitmap(bitmap))).getId();
+    }
+
+    @Override
+    public void rotateCamera(LatLng latLng) {
         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
@@ -294,11 +300,10 @@ public class MapsActivity extends FragmentActivity implements MapsView{
         progressDialog.setCancelable(true);
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public void setRegistered(boolean isRegistered) {
-        this.isRegistered = isRegistered;
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Intent intent = new Intent(MapsActivity.this, DisplayImageActivity.class);
+        startActivity(intent);
+        return false;
     }
 }

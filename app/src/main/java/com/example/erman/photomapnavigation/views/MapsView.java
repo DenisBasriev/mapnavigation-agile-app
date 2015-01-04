@@ -13,7 +13,7 @@ public interface MapsView {
 
     public void showProgress();
     public void hideProgress();
-    public void addNewMarker(Bitmap bitmap, LatLng latLng);
+    public String addNewMarker(Bitmap bitmap, LatLng latLng);
     public void startImageCaptureActivity(Intent intent, Integer request);
     public int getResultOk();
     public void broadcastToGallery(Intent intent);
@@ -31,6 +31,5 @@ public interface MapsView {
     public void showNonCancellableProgressDialog(String message);
     public void showLocationError();
     public String getStringFromR(int event_load_message);
-    public void setUserEmail(String email);
-    public void setRegistered(boolean isRegistered);
+    public void rotateCamera(LatLng latLng);
 }

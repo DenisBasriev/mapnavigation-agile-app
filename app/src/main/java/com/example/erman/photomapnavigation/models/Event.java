@@ -81,4 +81,12 @@ public class Event {
     public String toString() {
         return eventId + ", " + userId;
     }
+
+    public String getMarkerId() {
+        return markerId;
+    }
+
+    public void setMarkerId(String markerId) {
+        this.markerId = markerId;
+    }
 }

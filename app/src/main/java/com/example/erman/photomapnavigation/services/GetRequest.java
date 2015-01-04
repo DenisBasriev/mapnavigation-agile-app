@@ -67,9 +67,11 @@ public class GetRequest extends AsyncTask<String, Void, JSONObject> {
                 presenter.asyncTaskDone(jsonObject, task);
             } catch (JSONException e) {
                 presenter.notifyToShowConnectionError();
+
             }
         } else {
             presenter.notifyToShowConnectionError();
+            presenter.notifyToDismissProgressDialog();
         }
 
         presenter.notifyToDismissProgressDialog();
