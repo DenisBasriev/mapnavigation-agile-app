@@ -10,6 +10,10 @@ public class UnregisteredUser
 {
     private ArrayList<Event> accessableEvents;
 
+    public UnregisteredUser() {
+        accessableEvents = new ArrayList<Event>();
+    }
+
     public ArrayList<Event> getAccessableEvents()
     {
         return accessableEvents;
@@ -19,5 +23,18 @@ public class UnregisteredUser
         accessableEvents = accEvents;
     }
 
+    public void addAccessableEvent(Event e) {
+        accessableEvents.add(e);
+    }
+
+    public Event findAccessableEventById(int id) {
+        for (Event e: accessableEvents) {
+            if (e.getEventId() == id) {
+                return e;
+            }
+        }
+
+        return null;
+    }
 
 }

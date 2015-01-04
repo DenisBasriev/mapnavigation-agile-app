@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by erman on 04.12.2014.
@@ -64,18 +65,8 @@ public class MapsPresenterUserImpl implements MapsPresenter {
     @Override
     public void setUpMap() {
         searchForLocation();
-        //loadAccessableEvents();
+        loadAccessableEvents();
         loadOwnEvents();
-    }
-
-    private void downloadOwnEventsRootPhotos() {
-        ArrayList<Event> events = user.getOwnEvents();
-        for (int i = 0; i < events.size(); i++) {
-            String [] downloadArgs = new String[2];
-            downloadArgs[0] = events.get(i).getRootPhoto().getUrl();
-            downloadArgs[1] = String.valueOf(events.get(i).getEventId());
-            new DownloadImageTask(this).execute(downloadArgs);
-        }
     }
 
     private void searchForLocation() {
@@ -86,20 +77,17 @@ public class MapsPresenterUserImpl implements MapsPresenter {
     }
 
     private void loadAccessableEvents() {
-        /*GetRequest request = new GetRequest(this);
+        GetRequest request = new GetRequest(this);
         request.setLoadMessage(mapsView.getStringFromR(R.string.event_load_message));
-        request.execute(Constants.EVENTS_PAGE + Constants.JSON_PAGE_POSTFIX);*/
-
-        //This part is currently hard-coded. We will changed it to how it is supposed to be after the event.json page opened for get request.
+        request.setTask(RequestTask.GET_ACCESSABLE_EVENTS_TASK);
+        request.execute(Constants.EVENTS_PAGE + Constants.JSON_PAGE_POSTFIX);
     }
 
     private void loadOwnEvents() {
         GetRequest request =  new GetRequest(this);
         request.setLoadMessage(mapsView.getStringFromR(R.string.event_load_message));
-        String [] requestArgs = new String[2];
-        requestArgs[0] = Constants.EVENT_USER_PAGE + user.getUserId() + Constants.JSON_PAGE_POSTFIX;
-        requestArgs[1] = String.valueOf(RequestTask.GET_OWN_EVENTS_TASK);
-        request.execute(requestArgs);
+        request.setTask(RequestTask.GET_OWN_EVENTS_TASK);
+        request.execute(Constants.EVENT_USER_PAGE + user.getUserId() + Constants.JSON_PAGE_POSTFIX);
     }
 
     public void takePhoto() {
@@ -238,30 +226,92 @@ public class MapsPresenterUserImpl implements MapsPresenter {
     }
 
     @Override
-    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException {
-        if(givenTask.equals(Constants.EVENTS_PAGE)) {
+    public void asyncTaskDone(JSONObject jsonObject, RequestTask task) {
+        if(task == RequestTask.GET_ACCESSABLE_EVENTS_TASK) {
+            user.setAccessableEvents(createEventsFromJSON(jsonObject));
 
-        } else if(givenTask.equals(String.valueOf(RequestTask.GET_OWN_EVENTS_TASK))) {
-            JSONArray jsonArray = jsonObject.getJSONArray("events");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject arrayElement = jsonArray.getJSONObject(i);
-                Event event = new Event(arrayElement.getInt("id"), user);
-                LatLng latLng = new LatLng(Double.valueOf(arrayElement.getString("latitude")), Double.valueOf(arrayElement.getString("longitude")));
-                Photo rootPhoto = new Photo(arrayElement.getString("thumbnail"), latLng, event.getEventId());
-                event.setRootPhoto(rootPhoto);
-                user.addOwnEvent(event);
-            }
+            downloadAccessableEventsRootPhotos();
+        } else if(task == RequestTask.GET_OWN_EVENTS_TASK) {
+            user.setOwnEvents(createEventsFromJSON(jsonObject));
+
             downloadOwnEventsRootPhotos();
         }
     }
 
+    private ArrayList<Event> createEventsFromJSON(JSONObject jsonObject)  {
+        ArrayList<Event> events = new ArrayList<Event>();
+
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = jsonObject.getJSONArray("events");
+        } catch (JSONException e) {
+            Log.d("JSON Exception", "Cannot get json array");
+            return null;
+        }
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                JSONObject arrayElement = jsonArray.getJSONObject(i);
+                Log.d("Got json object", arrayElement.toString());
+                Event event = new Event(arrayElement.getInt("id"), arrayElement.getInt("user_id"));
+                Log.d("events", event.toString());
+                LatLng latLng = new LatLng(arrayElement.getDouble("latitude"), arrayElement.getDouble("longitude"));
+                Log.d("latlngs", latLng.toString());
+                Photo photo = new Photo(arrayElement.getString("thumbnail"), latLng, event.getEventId());
+                Log.d("photos", photo.toString());
+                event.setRootPhoto(photo);
+                events.add(event);
+                Log.d("event added", "event added");
+            } catch (JSONException e) {
+                Log.d("JSON exception", "Cannot parse json array's element");
+            }
+        }
+
+        return events;
+    }
+
+    private void downloadAccessableEventsRootPhotos() {
+        downloadEvents(user.getAccessableEvents(), RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_PHOTOS);
+    }
+
+    private void downloadEvents(ArrayList<Event> events, RequestTask task) {
+        Photo [] photosToDownload = new Photo[events.size()];
+
+        for (int i = 0; i < events.size(); i++) {
+            photosToDownload[i] = events.get(i).getRootPhoto();
+        }
+
+        new DownloadImageTask(this, task).execute(photosToDownload);
+    }
+
+    private void downloadOwnEventsRootPhotos() {
+        downloadEvents(user.getOwnEvents(), RequestTask.DOWNLOAD_OWN_EVENTS_PHOTOS);
+    }
+
     @Override
-    public void downloadDone(Bitmap bitmap, String eventId) {
-        ArrayList<Event> events = user.getOwnEvents();
-        for (Event e: events) {
-            if (e.getEventId() == Integer.valueOf(eventId)) {
-                e.getRootPhoto().setSource(bitmap);
-                mapsView.addNewMarker(bitmap, e.getRootPhoto().getLatLng());
+    public void downloadDone(Photo[] photos, RequestTask task){
+        if (task == RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_PHOTOS) {
+            for (Photo p : photos) {
+                for (Event e : user.getAccessableEvents()) {
+                    if (p.getOwnerEventId() == e.getEventId()) {
+                        e.setRootPhoto(p);
+
+                        mapsView.addNewMarker(p.getSource(), p.getLatLng());
+
+                        break;
+                    }
+                }
+            }
+
+        } else if (task == RequestTask.DOWNLOAD_OWN_EVENTS_PHOTOS) {
+            for (Photo p : photos) {
+                for (Event e : user.getAccessableEvents()) {
+                    if (p.getOwnerEventId() == e.getEventId()) {
+                        e.setRootPhoto(p);
+
+                        break;
+                    }
+                }
             }
         }
     }

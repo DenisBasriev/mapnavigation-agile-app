@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.example.erman.photomapnavigation.R;
+import com.example.erman.photomapnavigation.RequestTask;
+import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.models.UnregisteredUser;
 import com.example.erman.photomapnavigation.views.MapsView;
 
@@ -29,9 +31,10 @@ public class MapsPresenterVisitorImpl implements MapsPresenter{
     }
 
     @Override
-    public void downloadDone(Bitmap bitmap, String eventId) {
+    public void downloadDone(Photo[] photos, RequestTask task) {
 
     }
+
 
     @Override
     public void setUpMap() {
@@ -87,9 +90,10 @@ public class MapsPresenterVisitorImpl implements MapsPresenter{
     }
 
     @Override
-    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException {
+    public void asyncTaskDone(JSONObject jsonObject, RequestTask task) throws JSONException {
 
     }
+
 
     @Override
     public void notifyToShowConnectionError() {

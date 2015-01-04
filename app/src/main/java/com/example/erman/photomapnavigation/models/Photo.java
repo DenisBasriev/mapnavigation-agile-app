@@ -67,4 +67,9 @@ public class Photo {
     public void setSource(Bitmap source) {
         this.source = source;
     }
+
+    @Override
+    public String toString() {
+        return url + latLng.toString() + ownerEventId;
+    }
 }

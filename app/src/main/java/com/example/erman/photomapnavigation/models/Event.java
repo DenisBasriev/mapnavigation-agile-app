@@ -13,10 +13,10 @@ public class Event {
     private String title, description, markerId;
     private Photo rootPhoto;
     private ArrayList<Photo> photos;
-    private RegisteredUser creator;
+    private int userId;
     public boolean eventGoing;
 
-    public Event(int eventId, RegisteredUser creator) {
+    public Event(int eventId, int userId) {
         this.eventId = eventId;
 
         createdDate = Calendar.getInstance();
@@ -27,7 +27,7 @@ public class Event {
 
         photos = new ArrayList<Photo>();
 
-        this.creator = creator;
+        this.userId = userId;
 
         eventGoing = true;
     }
@@ -55,8 +55,8 @@ public class Event {
     public ArrayList<Photo> getPhotos() {
         return photos;
     }
-    public RegisteredUser getCreator() {
-        return creator;
+    public int getUserId() {
+        return userId;
     }
 
     //Setters
@@ -75,5 +75,10 @@ public class Event {
         if(eventGoing) {
             photos.add(p);
         }
+    }
+
+    @Override
+    public String toString() {
+        return eventId + ", " + userId;
     }
 }

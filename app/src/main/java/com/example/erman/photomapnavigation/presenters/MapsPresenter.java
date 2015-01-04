@@ -3,6 +3,8 @@ package com.example.erman.photomapnavigation.presenters;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 
+import com.example.erman.photomapnavigation.RequestTask;
+import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.views.MapsView;
 
 /**
@@ -32,5 +34,5 @@ public interface MapsPresenter extends Presenter{
 
     public void signedIn(Bundle extras);
 
-    public void downloadDone(Bitmap bitmap, String eventId);
+    public void downloadDone(Photo[] photos, RequestTask task);
 }

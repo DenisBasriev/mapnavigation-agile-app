@@ -69,7 +69,7 @@ public class SignInPresenterImpl implements SignInPresenter {
     }
 
     @Override
-    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException{
+    public void asyncTaskDone(JSONObject jsonObject, RequestTask task) throws JSONException{
         int id = jsonObject.getInt("id");
 
         String firstName = jsonObject.getString("firstName");

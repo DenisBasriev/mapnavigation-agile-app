@@ -1,5 +1,7 @@
 package com.example.erman.photomapnavigation.presenters;
 
+import com.example.erman.photomapnavigation.RequestTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,6 +11,6 @@ import org.json.JSONObject;
 public interface Presenter {
     public void notifyToShowProgressDialog(String message);
     public void notifyToDismissProgressDialog();
-    public void asyncTaskDone(JSONObject jsonObject, String givenTask) throws JSONException;
+    public void asyncTaskDone(JSONObject jsonObject, RequestTask task) throws JSONException;
     public void notifyToShowConnectionError();
 }

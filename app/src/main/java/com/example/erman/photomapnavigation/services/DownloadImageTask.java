@@ -3,7 +3,10 @@ package com.example.erman.photomapnavigation.services;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.example.erman.photomapnavigation.RequestTask;
+import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
 
 import java.io.InputStream;
@@ -13,43 +16,47 @@ import java.net.URL;
 /**
  * Created by erman on 31.12.2014.
  */
-public class DownloadImageTask extends AsyncTask<String, Void, Bitmap>{
+public class DownloadImageTask extends AsyncTask<Photo, Void, Photo[]>{
 
     private MapsPresenter presenter;
     private static final String loadMessage = "Downloading...\nClick on the map to continue!";
-    private static String eventId;
+    private RequestTask task;
 
-    public DownloadImageTask(MapsPresenter presenter) {
+    public DownloadImageTask(MapsPresenter presenter, RequestTask task) {
         this.presenter = presenter;
+        this.task = task;
     }
 
     @Override
     protected void onPreExecute() {
         presenter.notifyToShowProgressDialog(loadMessage);
+        Log.d("Pre execute", "run");
     }
 
     @Override
-    protected Bitmap doInBackground(String... strings) {
-        try {
-            URL url = new URL(strings[0]);
-            eventId = strings[1];
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            conn.connect();
-            InputStream input = conn.getInputStream();
-            Bitmap bitmap = BitmapFactory.decodeStream(input);
-            input.close();
+    protected Photo [] doInBackground(Photo... photos) {
+        for (Photo p : photos) {
+            try {
+                URL url = new URL(p.getUrl());
+                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                conn.connect();
+                InputStream input = conn.getInputStream();
+                Bitmap bitmap = BitmapFactory.decodeStream(input);
+                input.close();
+                p.setSource(bitmap);
 
-            return bitmap;
-        } catch (Exception e) {
-            return null;
+            } catch (Exception e) {
+                Log.d("Download error", "Download error");
+            }
         }
 
+        return photos;
     }
 
     @Override
-    protected void onPostExecute(Bitmap bitmap) {
-        if (bitmap != null) {
-            presenter.downloadDone(bitmap, eventId);
+    protected void onPostExecute(Photo[] photos) {
+        if (photos != null) {
+            presenter.downloadDone(photos, task);
         } else {
             presenter.notifyToShowConnectionError();
         }

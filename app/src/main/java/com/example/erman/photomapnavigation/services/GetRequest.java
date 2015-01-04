@@ -3,6 +3,7 @@ package com.example.erman.photomapnavigation.services;
 import android.os.AsyncTask;
 
 import com.example.erman.photomapnavigation.Constants;
+import com.example.erman.photomapnavigation.RequestTask;
 import com.example.erman.photomapnavigation.presenters.Presenter;
 
 import org.apache.http.HttpResponse;
@@ -22,10 +23,14 @@ public class GetRequest extends AsyncTask<String, Void, JSONObject> {
 
     private Presenter presenter;
     private static String loadMessage = "Loading...";
-    private static String givenTask;
+    private RequestTask task;
 
     public GetRequest(Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    public void setTask(RequestTask task) {
+        this.task = task;
     }
 
     public void setLoadMessage(String message) {
@@ -41,14 +46,12 @@ public class GetRequest extends AsyncTask<String, Void, JSONObject> {
     protected JSONObject doInBackground(String... strings) {
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(strings[0]);
-        givenTask = strings[1];
 
         try {
             HttpResponse response = httpClient.execute(httpGet);
             String responseString = EntityUtils.toString(response.getEntity());
-            JSONObject jsonObject = new JSONObject(responseString);
 
-            return jsonObject;
+            return new JSONObject(responseString);
         } catch (IOException e) {
             return null;
         } catch (JSONException e) {
@@ -61,9 +64,9 @@ public class GetRequest extends AsyncTask<String, Void, JSONObject> {
 
         if (jsonObject != null) {
             try {
-                presenter.asyncTaskDone(jsonObject, givenTask);
+                presenter.asyncTaskDone(jsonObject, task);
             } catch (JSONException e) {
-                e.printStackTrace();
+                presenter.notifyToShowConnectionError();
             }
         } else {
             presenter.notifyToShowConnectionError();

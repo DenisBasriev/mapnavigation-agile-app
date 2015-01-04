@@ -16,6 +16,7 @@ public class RegisteredUser extends UnregisteredUser {
 
     //Constructor
     public RegisteredUser(int userId, String email, String firstName, String lastName) {
+        super();
         this.userId = userId;
         this.email = email;
         this.firstName = firstName;
@@ -76,6 +77,16 @@ public class RegisteredUser extends UnregisteredUser {
 
     public void addOwnEvent(Event event) {
         ownEvents.add(event);
+    }
+
+    public Event findOwnEventById(int id) {
+        for (Event e : ownEvents) {
+            if (e.getEventId() == id) {
+                return e;
+            }
+        }
+
+        return null;
     }
 }
 
