@@ -38,7 +38,7 @@ import java.util.concurrent.Semaphore;
 /**
  * Created by erman on 04.12.2014.
  */
-public class MapsPresenterUserImpl implements MapsPresenter {
+public class MapsPresenterUserImpl implements MapsPresenterUser {
 
     private static int REQUEST_TAKE_PHOTO = 1;
     private MapsView mapsView;
@@ -166,7 +166,7 @@ public class MapsPresenterUserImpl implements MapsPresenter {
         mapsView.broadcastToGallery(mediaScanIntent);
     }
 
-    @Override
+
     public void doneDecodingForRoot(Bitmap bitmap) {
         bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
 
@@ -206,9 +206,6 @@ public class MapsPresenterUserImpl implements MapsPresenter {
     public void notifyToCopyUrlToClipboard(String url) {
         mapsView.copyToClipboard(url);
     }
-
-    @Override
-    public void signUp() {}
 
     @Override
     public void notifyToShowConnectionError() {

@@ -20,8 +20,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.erman.photomapnavigation.R;
-import com.example.erman.photomapnavigation.presenters.MapsPresenter;
+import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterUserImpl;
+import com.example.erman.photomapnavigation.presenters.MapsPresenterVisitor;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterVisitorImpl;
 import com.example.erman.photomapnavigation.views.MapsView;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,7 +36,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements MapsView, GoogleMap.OnMarkerClickListener{
 
-    private MapsPresenter presenter;
+    private MapsPresenterUser userPresenter;
+    private MapsPresenterVisitor visitorPresenter;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ProgressBar progressBar;
     private boolean alertDialogAnswer = false;
@@ -58,18 +60,16 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
             isRegistered = extras.getBoolean("isRegistered?");
 
             if (isRegistered) {
-                presenter = new MapsPresenterUserImpl();
+                userPresenter = new MapsPresenterUserImpl();
+                userPresenter.signedIn(extras);
+                userPresenter.setView(this);
                 userEmail = extras.getString("email");
             } else {
-                presenter = new MapsPresenterVisitorImpl();
+                visitorPresenter = new MapsPresenterVisitorImpl();
+                visitorPresenter.signedIn(extras);
+                visitorPresenter.setView(this);
             }
-
-            presenter.signedIn(extras);
         }
-
-        presenter.setView(this);
-
-
         setUpMapIfNeeded();
     }
 
@@ -90,11 +90,11 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_take_picture){
-            presenter.takePhoto();
+            userPresenter.takePhoto();
 
             return true;
         } else if (item.getItemId() == R.id.action_sign_up) {
-            presenter.signUp();
+            visitorPresenter.signUp();
 
             return true;
         } else {
@@ -118,7 +118,11 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                     mMap.setOnMarkerClickListener(this);
-                    presenter.setUpMap();
+                    if (isRegistered) {
+                        userPresenter.setUpMap();
+                    } else {
+                        visitorPresenter.setUpMap();
+                    }
             }
         }
     }
@@ -192,7 +196,7 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        presenter.savePhoto(resultCode);
+        userPresenter.savePhoto(resultCode);
     }
 
     @Override
@@ -238,7 +242,7 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 alertDialogAnswer = true;
-                presenter.alertDialogAnswered(alertDialogAnswer);
+                userPresenter.alertDialogAnswered(alertDialogAnswer);
 
                 dialogInterface.dismiss();
             }
@@ -246,7 +250,7 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 alertDialogAnswer = false;
-                presenter.alertDialogAnswered(alertDialogAnswer);
+                userPresenter.alertDialogAnswered(alertDialogAnswer);
 
                 dialogInterface.dismiss();
             }

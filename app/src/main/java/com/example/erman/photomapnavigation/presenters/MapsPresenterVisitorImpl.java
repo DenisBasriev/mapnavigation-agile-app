@@ -1,6 +1,5 @@
 package com.example.erman.photomapnavigation.presenters;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.example.erman.photomapnavigation.R;
@@ -15,7 +14,7 @@ import org.json.JSONObject;
 /**
  * Created by erman on 31.12.2014.
  */
-public class MapsPresenterVisitorImpl implements MapsPresenter{
+public class MapsPresenterVisitorImpl implements MapsPresenterVisitor{
 
     private MapsView mapsView;
     private UnregisteredUser user;
@@ -35,43 +34,12 @@ public class MapsPresenterVisitorImpl implements MapsPresenter{
 
     }
 
-
     @Override
     public void setUpMap() {
         mapsView.showNonCancellableProgressDialog(mapsView.getStringFromR(R.string.search_location_message));
         mapsView.enableUserLocation();
         mapsView.setCameraToCurrentLocation();
         mapsView.dismissProgressDialog();
-    }
-
-    @Override
-    public void takePhoto() {
-
-    }
-
-    @Override
-    public void savePhoto(Integer resultCode) {
-
-    }
-
-    @Override
-    public void doneDecodingForRoot(Bitmap bitmap) {
-
-    }
-
-    @Override
-    public void doneDecodingForUpload(Bitmap bitmap) {
-
-    }
-
-    @Override
-    public void alertDialogAnswered(boolean answer) {
-
-    }
-
-    @Override
-    public void notifyToCopyUrlToClipboard(String url) {
-
     }
 
     @Override
@@ -94,9 +62,8 @@ public class MapsPresenterVisitorImpl implements MapsPresenter{
 
     }
 
-
     @Override
     public void notifyToShowConnectionError() {
-
+        mapsView.alertNoConnection();
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.erman.photomapnavigation.Constants;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
+import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -25,10 +26,10 @@ import java.util.List;
  */
 public class UploadImageTask extends AsyncTask<String, Void, JSONObject>{
 
-    private MapsPresenter presenter;
+    private MapsPresenterUser presenter;
     private static final String uploadMessage = "Uploading...\nClick on the map to continue";
 
-    public UploadImageTask(MapsPresenter presenter) {
+    public UploadImageTask(MapsPresenterUser presenter) {
         this.presenter = presenter;
     }
 

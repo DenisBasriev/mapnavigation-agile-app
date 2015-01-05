@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
+import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
 
 /**
  * Created by erman on 07.12.2014.
@@ -13,9 +14,9 @@ public class ScaledBitmapDecoder extends AsyncTask<String, Void, Bitmap> {
 
     private static final int REQ_WIDTH = 100;
     private static final int REQ_HEIGHT = 100;
-    private MapsPresenter presenter;
+    private MapsPresenterUser presenter;
 
-    public ScaledBitmapDecoder(MapsPresenter presenter) {
+    public ScaledBitmapDecoder(MapsPresenterUser presenter) {
         this.presenter = presenter;
     }
 
