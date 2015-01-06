@@ -12,7 +12,7 @@ public class RegisteredUser extends UnregisteredUser {
     private String email;
     private String firstName;
     private String lastName;
-    private ArrayList<Event> ownEvents, contributedEvents, onGoingEvents;
+    private ArrayList<Event> ownEvents;
 
     //Constructor
     public RegisteredUser(int userId, String email, String firstName, String lastName) {
@@ -23,8 +23,6 @@ public class RegisteredUser extends UnregisteredUser {
         this.lastName = lastName;
 
         ownEvents = new ArrayList<Event>();
-        contributedEvents = new ArrayList<Event>();
-        onGoingEvents = new ArrayList<Event>();
     }
 
     //Getters
@@ -43,12 +41,6 @@ public class RegisteredUser extends UnregisteredUser {
     public ArrayList<Event> getOwnEvents() {
         return ownEvents;
     }
-    public ArrayList<Event> getContributedEvents() {
-        return contributedEvents;
-    }
-    public ArrayList<Event> getOnGoingEvents() {
-        return onGoingEvents;
-    }
 
     //Setters
     public void setFirstName(String firstName) {
@@ -57,36 +49,13 @@ public class RegisteredUser extends UnregisteredUser {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-    public void setContributableEvents(ArrayList<Event> contributableEvents) {
-        this.contributedEvents = contributableEvents;
-    }
+
     public void setOwnEvents(ArrayList<Event> ownEvents) {
         this.ownEvents = ownEvents;
-    }
-    public void setOnGoingEvents(ArrayList<Event> onGoingEvents) {
-        this.onGoingEvents = onGoingEvents;
-    }
-
-    public void createEvent(Event e) {
-        ownEvents.add(e);
-
-        if (e.eventGoing) {
-            onGoingEvents.add(e);
-        }
     }
 
     public void addOwnEvent(Event event) {
         ownEvents.add(event);
-    }
-
-    public Event findOwnEventById(int id) {
-        for (Event e : ownEvents) {
-            if (e.getEventId() == id) {
-                return e;
-            }
-        }
-
-        return null;
     }
 
     public void copyCorrespondingAccEventsAsOwnEvents() {
@@ -95,6 +64,16 @@ public class RegisteredUser extends UnregisteredUser {
             e.getRootPhoto().setSource(accEvent.getRootPhoto().getSource());
             e.setMarkerId(accEvent.getMarkerId());
         }
+    }
+
+    public boolean isNewEvent(int eventId) {
+        for(Event e : ownEvents) {
+            if(eventId == e.getEventId()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 

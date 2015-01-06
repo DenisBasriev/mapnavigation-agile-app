@@ -2,7 +2,6 @@ package com.example.erman.photomapnavigation.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.example.erman.photomapnavigation.R;
 import com.example.erman.photomapnavigation.models.Photo;
@@ -36,7 +34,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements MapsView, GoogleMap.OnMarkerClickListener{
 
@@ -337,7 +334,7 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
         double [] longts = new double[size];
         int [] eventIds = new int[size];
         for (int i = 0; i < size; i++) {
-            urls[i] = photos.get(i).getUrl();
+            urls[i] = photos.get(i).getBigPhotoUrl();
             lats[i] = photos.get(i).getLatLng().latitude;
             longts[i] = photos.get(i).getLatLng().longitude;
             eventIds[i] = photos.get(i).getOwnerEventId();

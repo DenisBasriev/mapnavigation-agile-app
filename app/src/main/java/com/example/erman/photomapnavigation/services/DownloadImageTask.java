@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.example.erman.photomapnavigation.RequestTask;
 import com.example.erman.photomapnavigation.models.Photo;
-import com.example.erman.photomapnavigation.presenters.MapsPresenter;
 import com.example.erman.photomapnavigation.presenters.Presenter;
 
 import java.io.InputStream;
@@ -38,7 +37,7 @@ public class DownloadImageTask extends AsyncTask<Photo, Void, Photo[]>{
     protected Photo [] doInBackground(Photo... photos) {
         for (Photo p : photos) {
             try {
-                URL url = new URL(p.getUrl());
+                URL url = new URL(p.getBigPhotoUrl());
                 HttpURLConnection conn = (HttpURLConnection)url.openConnection();
                 conn.connect();
                 InputStream input = conn.getInputStream();

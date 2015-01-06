@@ -12,32 +12,39 @@ import java.util.Date;
 
 public class Photo {
 
-    private String url, title, description;
+    private String bigPhotoUrl, smallPhotoUrl, title;
     private Date createdDate;
     private Bitmap source;
     private LatLng latLng;
     private int ownerEventId;
 
-    public Photo(String url, LatLng latLng, int ownerEventId) {
-        this.url = url;
+    public Photo(String bigPhotoUrl, LatLng latLng, int ownerEventId) {
+        this.bigPhotoUrl = bigPhotoUrl;
         this.latLng = latLng;
         this.ownerEventId = ownerEventId;
 
-        title = "";
-        description = "";
+        title = "Hard-coded title";
+        createdDate = new Date();
+    }
+
+    public Photo(String bigPhotoUrl, String smallPhotoUrl, LatLng latLng) {
+        this.bigPhotoUrl = bigPhotoUrl;
+        this.smallPhotoUrl = smallPhotoUrl;
+        this.latLng = latLng;
+
+        title = "Hard-coded title";
+        createdDate = new Date();
     }
 
     //Getters
 
-    public String getUrl() {
-        return url;
+    public String getBigPhotoUrl() {
+        return bigPhotoUrl;
     }
     public String getTitle() {
         return title;
     }
-    public String getDescription() {
-        return description;
-    }
+
     public Date getCreatedDate() {
         return createdDate;
     }
@@ -56,13 +63,7 @@ public class Photo {
     public void setTitle(String title) {
         this.title = title;
     }
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
 
     public void setSource(Bitmap source) {
         this.source = source;
@@ -70,6 +71,10 @@ public class Photo {
 
     @Override
     public String toString() {
-        return url + latLng.toString() + ownerEventId;
+        return bigPhotoUrl + latLng.toString() + ownerEventId;
+    }
+
+    public String getSmallPhotoUrl() {
+        return smallPhotoUrl;
     }
 }

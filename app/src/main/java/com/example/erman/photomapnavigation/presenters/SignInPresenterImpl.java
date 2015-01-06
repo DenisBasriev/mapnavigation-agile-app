@@ -43,7 +43,7 @@ public class SignInPresenterImpl implements SignInPresenter {
             GetRequest request = new GetRequest(this);
             request.setLoadMessage(signInView.getStringFromR(R.string.sign_in_message));
             String [] requestArgs = new String[2];
-            requestArgs[0] = Constants.USER_PAGE + "2.json";
+            requestArgs[0] = Constants.USER_PAGE + "1.json";
             requestArgs[1] = String.valueOf(RequestTask.SIGN_IN_TASK);
             request.execute(requestArgs);
         }

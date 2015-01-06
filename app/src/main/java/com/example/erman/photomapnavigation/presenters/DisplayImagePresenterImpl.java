@@ -22,7 +22,6 @@ public class DisplayImagePresenterImpl implements DisplayImagePresenter{
 
     private DisplayImageView displayImageView;
 
-
     public DisplayImagePresenterImpl(DisplayImageView displayImageView) {
         this.displayImageView = displayImageView;
     }

@@ -79,6 +79,10 @@ public class MapsPresenterVisitorImpl implements MapsPresenterVisitor{
             user.setAccessableEvents(createEventsFromJSON(jsonObject));
 
             downloadAccessableEventsRootPhotos();
+        } else if(task == RequestTask.GET_EVENTS_PHOTOS) {
+            ArrayList<Photo> photos = new ArrayList<Photo>(createPhotosFromJSON(jsonObject));
+
+            mapsView.sendPhotosToDisplayImages(photos);
         }
     }
 
@@ -114,6 +118,33 @@ public class MapsPresenterVisitorImpl implements MapsPresenterVisitor{
         return events;
     }
 
+    private ArrayList<Photo> createPhotosFromJSON(JSONObject jsonObject) {
+        ArrayList<Photo> photos = new ArrayList<Photo>();
+        JSONArray jsonArray = null;
+
+        try {
+            jsonArray = jsonObject.getJSONArray("photos");
+        } catch (JSONException e) {
+            Log.d("JSON Exception", "Cannot get json array");
+            return null;
+        }
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+
+            try {
+                JSONObject arrayElement = jsonArray.getJSONObject(i);
+                Log.d("Got json object", arrayElement.toString());
+                LatLng latLng = new LatLng(arrayElement.getDouble("latitude"), arrayElement.getDouble("longitude"));
+                Photo photo = new Photo(arrayElement.getString("url"), latLng, arrayElement.getInt("event_id"));
+                photos.add(photo);
+            } catch (JSONException e) {
+                Log.d("JSON exception", "Cannot parse json array's element");
+            }
+        }
+
+        return photos;
+    }
+
     private void downloadAccessableEventsRootPhotos() {
         downloadEvents(user.getAccessableEvents(), RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_ROOT_PHOTOS);
     }
@@ -147,7 +178,20 @@ public class MapsPresenterVisitorImpl implements MapsPresenterVisitor{
 
     @Override
     public void markerClicked(String markerId) {
+        int clickedEventId = user.findEventIdFromMarkerId(markerId);
 
+        if (clickedEventId != -1) {
+            loadEventsPhotos(clickedEventId);
+        } else {
+            mapsView.alertMarkerNotExist();
+        }
+    }
+
+    private void loadEventsPhotos(int clickedEventId) {
+        GetRequest request = new GetRequest(this);
+        request.setLoadMessage(mapsView.getStringFromR(R.string.retrieve_data_message));
+        request.setTask(RequestTask.GET_EVENTS_PHOTOS);
+        request.execute(Constants.EVENTS_PAGE + "/" + clickedEventId + Constants.JSON_PAGE_POSTFIX);
     }
 
     @Override

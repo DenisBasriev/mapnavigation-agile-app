@@ -17,9 +17,11 @@ import com.example.erman.photomapnavigation.models.RegisteredUser;
 import com.example.erman.photomapnavigation.operators.BitmapOperator;
 import com.example.erman.photomapnavigation.operators.FileOperator;
 import com.example.erman.photomapnavigation.operators.GeoTagger;
+import com.example.erman.photomapnavigation.operators.JsonModelConverter;
 import com.example.erman.photomapnavigation.operators.ScaledBitmapDecoder;
 import com.example.erman.photomapnavigation.services.DownloadImageTask;
 import com.example.erman.photomapnavigation.services.GetRequest;
+import com.example.erman.photomapnavigation.services.PhotoPostRequest;
 import com.example.erman.photomapnavigation.services.UploadImageTask;
 import com.example.erman.photomapnavigation.views.MapsView;
 import com.google.android.gms.maps.model.LatLng;
@@ -196,13 +198,31 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
 
     @Override
     public void doneUploadingPhotos(String[] urls) {
-        
+        Photo photoToPost = new Photo(urls[0], urls[1], mCurrentLatLng);
+        JSONObject jsonObject = new JsonModelConverter().createJSONFromPhoto(photoToPost);
+        new PhotoPostRequest(this).execute(jsonObject);
+    }
+
+    @Override
+    public void photoPosted(JSONObject jsonObject) {
+        Log.d("Photo posted", jsonObject.toString());
+
+        try {
+            int photoId = jsonObject.getInt("id");
+            GetRequest request = new GetRequest(this);
+            request.setLoadMessage(mapsView.getStringFromR(R.string.check_events));
+            request.setTask(RequestTask.GET_PHOTO_TASK);
+            request.execute(Constants.PHOTOS_PAGE + "/" + photoId + Constants.JSON_PAGE_POSTFIX);
+        } catch (JSONException e) {
+            Log.d("JSON Exception", "Cannot parse JSON");
+        }
     }
 
     @Override
     public void alertDialogAnswered(boolean answer) {
         if (answer) {
-            new UploadImageTask(this).execute(mCurrentConvertedImage);
+            String [] photosToUpload = {mCurrentConvertedImage, mConvertedRootImage};
+            new UploadImageTask(this).execute(photosToUpload);
         }
     }
 
@@ -224,76 +244,50 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
     @Override
     public void asyncTaskDone(JSONObject jsonObject, RequestTask task) {
         if(task == RequestTask.GET_ACCESSABLE_EVENTS_TASK) {
-            user.setAccessableEvents(createEventsFromJSON(jsonObject));
+            user.setAccessableEvents(new JsonModelConverter().createEventsFromJSON(jsonObject));
 
             downloadAccessableEventsRootPhotos();
         } else if(task == RequestTask.GET_OWN_EVENTS_TASK) {
-            user.setOwnEvents(createEventsFromJSON(jsonObject));
+            user.setOwnEvents(new JsonModelConverter().createEventsFromJSON(jsonObject));
 
         } else if(task == RequestTask.GET_EVENTS_PHOTOS) {
-            ArrayList<Photo> photos = new ArrayList<Photo>(createPhotosFromJSON(jsonObject));
+            ArrayList<Photo> photos = new ArrayList<Photo>(new JsonModelConverter().createPhotosFromJSON(jsonObject));
 
             mapsView.sendPhotosToDisplayImages(photos);
+        } else if(task == RequestTask.GET_PHOTO_TASK) {
+            try {
+                Log.d("JSON of get photo task", jsonObject.toString());
+                int eventId = jsonObject.getJSONObject("photo").getInt("event_id");
+                Log.d("is new event", String.valueOf(user.isNewEvent(eventId)));
+                if(user.isNewEvent(eventId)) {
+                    loadNewEvent(eventId);
+                }
+            } catch (JSONException e) {
+                Log.d("JSON exception", "cannot parse json");
+            }
+        } else if(task == RequestTask.NEW_EVENT_TASK) {
+            Log.d("JSON of new event task", jsonObject.toString());
+
+            Event event = new JsonModelConverter().createEventFromJSON(jsonObject, user.getUserId());
+
+            user.addAccessableEvent(event);
+            user.addOwnEvent(event);
+
+            downloadNewAccEventRootPhoto(event.getEventId());
         }
     }
 
-    private ArrayList<Event> createEventsFromJSON(JSONObject jsonObject)  {
+    private void loadNewEvent(int eventId) {
+        GetRequest request = new GetRequest(this);
+        request.setLoadMessage(mapsView.getStringFromR(R.string.new_event_load_message));
+        request.setTask(RequestTask.NEW_EVENT_TASK);
+        request.execute(Constants.EVENTS_PAGE + "/" + eventId + Constants.JSON_PAGE_POSTFIX);
+    }
+
+    private void downloadNewAccEventRootPhoto(int eventId) {
         ArrayList<Event> events = new ArrayList<Event>();
-        JSONArray jsonArray = null;
-
-        try {
-            jsonArray = jsonObject.getJSONArray("events");
-        } catch (JSONException e) {
-            Log.d("JSON Exception", "Cannot get json array");
-            return null;
-        }
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            try {
-                JSONObject arrayElement = jsonArray.getJSONObject(i);
-                Log.d("Got json object", arrayElement.toString());
-                Event event = new Event(arrayElement.getInt("id"), arrayElement.getInt("user_id"));
-                Log.d("events", event.toString());
-                LatLng latLng = new LatLng(arrayElement.getDouble("latitude"), arrayElement.getDouble("longitude"));
-                Log.d("latlngs", latLng.toString());
-                Photo photo = new Photo(arrayElement.getString("thumbnail"), latLng, event.getEventId());
-                Log.d("photos", photo.toString());
-                event.setRootPhoto(photo);
-                events.add(event);
-                Log.d("event added", "event added");
-            } catch (JSONException e) {
-                Log.d("JSON exception", "Cannot parse json array's element");
-            }
-        }
-
-        return events;
-    }
-
-    private ArrayList<Photo> createPhotosFromJSON(JSONObject jsonObject) {
-        ArrayList<Photo> photos = new ArrayList<Photo>();
-        JSONArray jsonArray = null;
-
-        try {
-            jsonArray = jsonObject.getJSONArray("photos");
-        } catch (JSONException e) {
-            Log.d("JSON Exception", "Cannot get json array");
-            return null;
-        }
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-
-            try {
-                JSONObject arrayElement = jsonArray.getJSONObject(i);
-                Log.d("Got json object", arrayElement.toString());
-                LatLng latLng = new LatLng(arrayElement.getDouble("latitude"), arrayElement.getDouble("longitude"));
-                Photo photo = new Photo(arrayElement.getString("url"), latLng, arrayElement.getInt("event_id"));
-                photos.add(photo);
-            } catch (JSONException e) {
-                Log.d("JSON exception", "Cannot parse json array's element");
-            }
-        }
-
-        return photos;
+        events.add(user.findAccessableEventById(eventId));
+        downloadEvents(events, RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_ROOT_PHOTOS);
     }
 
     private void downloadAccessableEventsRootPhotos() {

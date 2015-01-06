@@ -9,19 +9,14 @@ import java.util.Calendar;
 public class Event {
 
     private int eventId;
-    private Calendar createdDate, endDate;
     private String title, description, markerId;
     private Photo rootPhoto;
     private ArrayList<Photo> photos;
     private int userId;
-    public boolean eventGoing;
 
     public Event(int eventId, int userId) {
         this.eventId = eventId;
 
-        createdDate = Calendar.getInstance();
-        endDate = Calendar.getInstance();
-        endDate.add(Calendar.HOUR_OF_DAY, 1);
         title = "";
         description = "";
 
@@ -29,19 +24,12 @@ public class Event {
 
         this.userId = userId;
 
-        eventGoing = true;
     }
 
     //Getters
 
     public int getEventId() {
         return eventId;
-    }
-    public Calendar getCreatedDate() {
-        return createdDate;
-    }
-    public Calendar getEndDate() {
-        return endDate;
     }
     public String getTitle() {
         return title;
@@ -69,12 +57,6 @@ public class Event {
     }
     public void setRootPhoto(Photo rootPhoto) {
         this.rootPhoto = rootPhoto;
-    }
-
-    public void addPhoto(Photo p) {
-        if(eventGoing) {
-            photos.add(p);
-        }
     }
 
     @Override
