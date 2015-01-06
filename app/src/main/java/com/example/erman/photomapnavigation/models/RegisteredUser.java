@@ -66,6 +66,16 @@ public class RegisteredUser extends UnregisteredUser {
         }
     }
 
+    public Event findOwnEventById(int id) {
+        for (Event e : ownEvents) {
+            if (e.getEventId() == id) {
+                return e;
+            }
+        }
+
+        return null;
+    }
+
     public boolean isNewEvent(int eventId) {
         for(Event e : ownEvents) {
             if(eventId == e.getEventId()) {
