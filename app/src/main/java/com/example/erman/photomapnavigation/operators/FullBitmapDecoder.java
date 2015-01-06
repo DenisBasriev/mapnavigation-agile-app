@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
-import com.example.erman.photomapnavigation.presenters.MapsPresenter;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
 
 /**
@@ -25,6 +24,6 @@ public class FullBitmapDecoder extends AsyncTask<String, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        presenter.doneDecodingForUpload(bitmap);
+        presenter.doneDecodingForBigPhoto(bitmap);
     }
 }

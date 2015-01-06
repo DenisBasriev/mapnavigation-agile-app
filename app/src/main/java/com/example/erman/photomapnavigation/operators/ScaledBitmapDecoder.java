@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
-import com.example.erman.photomapnavigation.presenters.MapsPresenter;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
 
 /**
@@ -12,12 +11,20 @@ import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
  */
 public class ScaledBitmapDecoder extends AsyncTask<String, Void, Bitmap> {
 
-    private static final int REQ_WIDTH = 100;
-    private static final int REQ_HEIGHT = 100;
+    private int REQ_WIDTH = 1024;
+    private int REQ_HEIGHT = 1024;
     private MapsPresenterUser presenter;
+    public static int SMALL_PHOTO = 0;
+    public static int BIG_PHOTO = 1;
+    private int sizeChoice;
 
-    public ScaledBitmapDecoder(MapsPresenterUser presenter) {
+    public ScaledBitmapDecoder(MapsPresenterUser presenter, int sizeChoice) {
         this.presenter = presenter;
+        this.sizeChoice = sizeChoice;
+        if (sizeChoice == SMALL_PHOTO) {
+            REQ_HEIGHT = 100;
+            REQ_WIDTH = 100;
+        }
     }
 
     @Override
@@ -27,7 +34,11 @@ public class ScaledBitmapDecoder extends AsyncTask<String, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        presenter.doneDecodingForRoot(bitmap);
+        if (sizeChoice == SMALL_PHOTO) {
+            presenter.doneDecodingSmallPhoto(bitmap);
+        } else  if (sizeChoice == BIG_PHOTO){
+            presenter.doneDecodingForBigPhoto(bitmap);
+        }
     }
 
     private Bitmap decodeSampledBitmapFromFile(String filePath, int reqWidth, int reqHeight) {

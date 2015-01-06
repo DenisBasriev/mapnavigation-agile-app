@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.erman.photomapnavigation.R;
+import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterUser;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterUserImpl;
 import com.example.erman.photomapnavigation.presenters.MapsPresenterVisitor;
@@ -33,6 +34,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements MapsView, GoogleMap.OnMarkerClickListener{
 
@@ -220,6 +224,20 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
     }
 
     @Override
+    public void alertMarkerNotExist() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.marker_not_exist_title).setMessage(R.string.marker_not_exist_error)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).setIcon(android.R.drawable.ic_dialog_alert);
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    @Override
     public boolean wifiAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo.State wifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState();
@@ -272,12 +290,6 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
         alert.show();
     }
 
-    @Override
-    public void copyToClipboard(String url) {
-        ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboardManager.setText(url);
-        Toast.makeText(this, R.string.url_copied_clipboard, Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public void navigateToSignUp() {
@@ -306,8 +318,37 @@ public class MapsActivity extends FragmentActivity implements MapsView, GoogleMa
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Intent intent = new Intent(MapsActivity.this, DisplayImageActivity.class);
-        startActivity(intent);
+        if (isRegistered) {
+            userPresenter.markerClicked(marker.getId());
+        } else {
+            visitorPresenter.markerClicked(marker.getId());
+        }
+
         return false;
+    }
+
+    @Override
+    public void sendPhotosToDisplayImages(ArrayList<Photo> photos) {
+        int size = photos.size();
+
+        String [] urls = new String[size];
+
+        double [] lats = new double[size];
+        double [] longts = new double[size];
+        int [] eventIds = new int[size];
+        for (int i = 0; i < size; i++) {
+            urls[i] = photos.get(i).getUrl();
+            lats[i] = photos.get(i).getLatLng().latitude;
+            longts[i] = photos.get(i).getLatLng().longitude;
+            eventIds[i] = photos.get(i).getOwnerEventId();
+        }
+        Bundle bundle = new Bundle();
+        bundle.putStringArray("urls", urls);
+        bundle.putDoubleArray("lats", lats);
+        bundle.putDoubleArray("longts", longts);
+        bundle.putIntArray("eventIds", eventIds);
+        Intent intent = new Intent(MapsActivity.this, DisplayImageActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 }

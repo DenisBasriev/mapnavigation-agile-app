@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.example.erman.photomapnavigation.Constants;
 import com.example.erman.photomapnavigation.R;
 import com.example.erman.photomapnavigation.RequestTask;
+import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.models.RegisteredUser;
 import com.example.erman.photomapnavigation.services.GetRequest;
 import com.example.erman.photomapnavigation.views.SignInView;
@@ -66,6 +67,11 @@ public class SignInPresenterImpl implements SignInPresenter {
     @Override
     public void notifyToDismissProgressDialog() {
         signInView.dismissProgressDialog();
+    }
+
+    @Override
+    public void downloadDone(Photo[] photos, RequestTask task) {
+
     }
 
     @Override

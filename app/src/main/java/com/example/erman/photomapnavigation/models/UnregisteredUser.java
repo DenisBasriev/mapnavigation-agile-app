@@ -37,4 +37,13 @@ public class UnregisteredUser
         return null;
     }
 
+    public int findEventIdFromMarkerId(String markerId) {
+        for (Event acc : accessableEvents) {
+            if (acc.getMarkerId().equals(markerId)) {
+                return acc.getEventId();
+            }
+        }
+
+        return -1;
+    }
 }

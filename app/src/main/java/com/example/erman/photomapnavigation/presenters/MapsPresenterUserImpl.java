@@ -16,7 +16,6 @@ import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.models.RegisteredUser;
 import com.example.erman.photomapnavigation.operators.BitmapOperator;
 import com.example.erman.photomapnavigation.operators.FileOperator;
-import com.example.erman.photomapnavigation.operators.FullBitmapDecoder;
 import com.example.erman.photomapnavigation.operators.GeoTagger;
 import com.example.erman.photomapnavigation.operators.ScaledBitmapDecoder;
 import com.example.erman.photomapnavigation.services.DownloadImageTask;
@@ -32,8 +31,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.Semaphore;
 
 /**
  * Created by erman on 04.12.2014.
@@ -44,6 +41,7 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
     private MapsView mapsView;
     private String mCurrentPhotoPath;
     private String mCurrentConvertedImage;
+    private String mConvertedRootImage;
     private LatLng mCurrentLatLng;
     private BitmapOperator bitmapOperator;
     private RegisteredUser user;
@@ -134,8 +132,7 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
         galleryAddPic();
 
         if (mCurrentLatLng != null) {
-            new ScaledBitmapDecoder(this).execute(mCurrentPhotoPath);
-            new FullBitmapDecoder(this).execute(mCurrentPhotoPath);
+            new ScaledBitmapDecoder(this, ScaledBitmapDecoder.BIG_PHOTO).execute(mCurrentPhotoPath);
         }
     }
 
@@ -167,27 +164,29 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
     }
 
 
-    public void doneDecodingForRoot(Bitmap bitmap) {
+    public void doneDecodingSmallPhoto(Bitmap bitmap) {
         bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
 
-        Log.d("Current LatLng", mCurrentLatLng.toString());
-        Log.d("Current date", new Date().toString());
-        mapsView.addNewMarker(bitmap, mCurrentLatLng);
+        mConvertedRootImage = bitmapOperator.bitmapToBase64(bitmap);
+
         mapsView.hideProgress();
+
+        uploadPhotos();
     }
 
     @Override
-    public void doneDecodingForUpload(Bitmap bitmap) {
+    public void doneDecodingForBigPhoto(Bitmap bitmap) {
         bitmap = bitmapOperator.fixRotation(bitmap, mCurrentPhotoPath);
 
         mCurrentConvertedImage = bitmapOperator.bitmapToBase64(bitmap);
 
-        uploadPhoto();
+        new ScaledBitmapDecoder(this, ScaledBitmapDecoder.SMALL_PHOTO).execute(mCurrentPhotoPath);
     }
 
-    private void uploadPhoto() {
+    private void uploadPhotos() {
         if (mapsView.wifiAvailable()) {
-            new UploadImageTask(this).execute(mCurrentConvertedImage);
+            String [] convertedImages = {mCurrentConvertedImage, mConvertedRootImage};
+            new UploadImageTask(this).execute(convertedImages);
         } else if (mapsView.mobileDataAvailable()) {
             mapsView.alertMobileData();
         } else {
@@ -196,15 +195,15 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
     }
 
     @Override
+    public void doneUploadingPhotos(String[] urls) {
+        
+    }
+
+    @Override
     public void alertDialogAnswered(boolean answer) {
         if (answer) {
             new UploadImageTask(this).execute(mCurrentConvertedImage);
         }
-    }
-
-    @Override
-    public void notifyToCopyUrlToClipboard(String url) {
-        mapsView.copyToClipboard(url);
     }
 
     @Override
@@ -231,13 +230,17 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
         } else if(task == RequestTask.GET_OWN_EVENTS_TASK) {
             user.setOwnEvents(createEventsFromJSON(jsonObject));
 
+        } else if(task == RequestTask.GET_EVENTS_PHOTOS) {
+            ArrayList<Photo> photos = new ArrayList<Photo>(createPhotosFromJSON(jsonObject));
+
+            mapsView.sendPhotosToDisplayImages(photos);
         }
     }
 
     private ArrayList<Event> createEventsFromJSON(JSONObject jsonObject)  {
         ArrayList<Event> events = new ArrayList<Event>();
-
         JSONArray jsonArray = null;
+
         try {
             jsonArray = jsonObject.getJSONArray("events");
         } catch (JSONException e) {
@@ -266,8 +269,35 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
         return events;
     }
 
+    private ArrayList<Photo> createPhotosFromJSON(JSONObject jsonObject) {
+        ArrayList<Photo> photos = new ArrayList<Photo>();
+        JSONArray jsonArray = null;
+
+        try {
+            jsonArray = jsonObject.getJSONArray("photos");
+        } catch (JSONException e) {
+            Log.d("JSON Exception", "Cannot get json array");
+            return null;
+        }
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+
+            try {
+                JSONObject arrayElement = jsonArray.getJSONObject(i);
+                Log.d("Got json object", arrayElement.toString());
+                LatLng latLng = new LatLng(arrayElement.getDouble("latitude"), arrayElement.getDouble("longitude"));
+                Photo photo = new Photo(arrayElement.getString("url"), latLng, arrayElement.getInt("event_id"));
+                photos.add(photo);
+            } catch (JSONException e) {
+                Log.d("JSON exception", "Cannot parse json array's element");
+            }
+        }
+
+        return photos;
+    }
+
     private void downloadAccessableEventsRootPhotos() {
-        downloadEvents(user.getAccessableEvents(), RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_PHOTOS);
+        downloadEvents(user.getAccessableEvents(), RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_ROOT_PHOTOS);
     }
 
     private void downloadEvents(ArrayList<Event> events, RequestTask task) {
@@ -282,7 +312,7 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
 
     @Override
     public void downloadDone(Photo[] photos, RequestTask task){
-        if (task == RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_PHOTOS) {
+        if (task == RequestTask.DOWNLOAD_ACCESSABLE_EVENTS_ROOT_PHOTOS) {
             for (Photo p : photos) {
                 for (Event e : user.getAccessableEvents()) {
                     if (p.getOwnerEventId() == e.getEventId()) {
@@ -297,5 +327,23 @@ public class MapsPresenterUserImpl implements MapsPresenterUser {
         }
 
         user.copyCorrespondingAccEventsAsOwnEvents();
+    }
+
+    @Override
+    public void markerClicked(String markerId) {
+        int clickedEventId = user.findEventIdFromMarkerId(markerId);
+
+        if (clickedEventId != -1) {
+            loadEventsPhotos(clickedEventId);
+        } else {
+            mapsView.alertMarkerNotExist();
+        }
+    }
+
+    private void loadEventsPhotos(int clickedEventId) {
+        GetRequest request = new GetRequest(this);
+        request.setLoadMessage(mapsView.getStringFromR(R.string.retrieve_data_message));
+        request.setTask(RequestTask.GET_EVENTS_PHOTOS);
+        request.execute(Constants.EVENTS_PAGE + "/" + clickedEventId + Constants.JSON_PAGE_POSTFIX);
     }
 }

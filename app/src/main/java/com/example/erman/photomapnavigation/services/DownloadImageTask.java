@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.erman.photomapnavigation.RequestTask;
 import com.example.erman.photomapnavigation.models.Photo;
 import com.example.erman.photomapnavigation.presenters.MapsPresenter;
+import com.example.erman.photomapnavigation.presenters.Presenter;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -18,11 +19,11 @@ import java.net.URL;
  */
 public class DownloadImageTask extends AsyncTask<Photo, Void, Photo[]>{
 
-    private MapsPresenter presenter;
+    private Presenter presenter;
     private static final String loadMessage = "Downloading...\nClick on the map to continue!";
     private RequestTask task;
 
-    public DownloadImageTask(MapsPresenter presenter, RequestTask task) {
+    public DownloadImageTask(Presenter presenter, RequestTask task) {
         this.presenter = presenter;
         this.task = task;
     }

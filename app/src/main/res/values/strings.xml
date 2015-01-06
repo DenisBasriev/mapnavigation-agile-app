@@ -35,5 +35,8 @@
     <string name="sign_in_message">Signing in…</string>
     <string name="search_location_message">Searching your location…</string>
     <string name="title_activity_display_image">DisplayImageActivity</string>
+    <string name="marker_not_exist_title">Event not found!</string>
+    <string name="marker_not_exist_error">The clicked event does not exist anymore!</string>
+    <string name="retrieve_data_message">Retrieving related data…</string>
 
 </resources>

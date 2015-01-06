@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by erman on 07.12.2014.
  */
-public class UploadImageTask extends AsyncTask<String, Void, JSONObject>{
+public class UploadImageTask extends AsyncTask<String, Void, JSONObject[]>{
 
     private MapsPresenterUser presenter;
     private static final String uploadMessage = "Uploading...\nClick on the map to continue";
@@ -39,43 +39,48 @@ public class UploadImageTask extends AsyncTask<String, Void, JSONObject>{
     }
 
     @Override
-    protected JSONObject doInBackground(String... strings) {
+    protected JSONObject[] doInBackground(String... strings) {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(Constants.UPLOAD_URL);
+        JSONObject [] jsonObjects = new JSONObject[strings.length];
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-            nameValuePairs.add(new BasicNameValuePair("image", strings[0]));
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-            httpPost.setHeader("Authorization", "Client-ID " + Constants.CLIENT_ID);
-            HttpResponse response = httpClient.execute(httpPost);
-            String responseString = EntityUtils.toString(response.getEntity());
-            JSONObject json = new JSONObject(responseString);
+        for (int i = 0; i < 2; i++) {
 
-            return json;
-        } catch (Exception ex) {
-            return null;
+            try {
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+                nameValuePairs.add(new BasicNameValuePair("image", strings[i]));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPost.setHeader("Authorization", "Client-ID " + Constants.CLIENT_ID);
+                HttpResponse response = httpClient.execute(httpPost);
+                String responseString = EntityUtils.toString(response.getEntity());
+                JSONObject json = new JSONObject(responseString);
+                jsonObjects[i] = json;
+
+            } catch (Exception ex) {
+                Log.d("Upload Error", "Couldn't upload photo " + i);
+            }
         }
+
+        return jsonObjects;
     }
 
     @Override
-    protected void onPostExecute(JSONObject jsonObject) {
+    protected void onPostExecute(JSONObject [] jsonObjects) {
 
-        if (jsonObject != null) {
-            Log.d("JSON Response", jsonObject.toString());
+       if (jsonObjects != null) {
+           Log.d("Big photo", jsonObjects[0].toString());
+           Log.d("Small photo", jsonObjects[1].toString());
+           String [] urls = new String[2];
+           try{
+               urls[0] = getUrlFromJSON(jsonObjects[0]);
+               urls[1] = getUrlFromJSON(jsonObjects[1]);
+               presenter.doneUploadingPhotos(urls);
+           } catch (JSONException e) {
+               Log.d("JSON Exception", "Cannot parse json");
+           }
+       }
 
-            try {
-                String url = getUrlFromJSON(jsonObject);
-
-                presenter.notifyToCopyUrlToClipboard(url);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            presenter.notifyToShowConnectionError();
-        }
-
-        presenter.notifyToDismissProgressDialog();
+       presenter.notifyToDismissProgressDialog();
     }
 
     private String getUrlFromJSON(JSONObject jsonObject) throws JSONException {
